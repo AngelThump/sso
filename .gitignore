@@ -109,5 +109,4 @@ $RECYCLE.BIN/
 # Others
 lib/
 data/
-nedb/*
 config/*

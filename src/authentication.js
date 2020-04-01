@@ -28,9 +28,10 @@ class PatreonStrategy extends OAuthStrategy {
     const baseData = await super.getEntityData(profile.data);
 
     return {
-      isPatreonLinked: true,
       patreon: {
         ...baseData,
+        isPatron: false,
+        tier: 0,
         access_token: profile.access_token,
         refresh_token: profile.refresh_token
       }
@@ -38,7 +39,7 @@ class PatreonStrategy extends OAuthStrategy {
   }
 
   getEntityQuery(profile) {
-    const query = {"patreon.patreonId": profile.data.id}
+    const query = {"patreon.id": profile.data.id}
     return {
         ...query,
         $limit: 1
@@ -70,7 +71,6 @@ class TwitchStrategy extends OAuthStrategy {
     const baseData = await super.getEntityData(profile);
 
     return {
-      isTwitchLinked: true,
       twitch: {
         ...baseData,
         channel: profile.login,
@@ -81,7 +81,7 @@ class TwitchStrategy extends OAuthStrategy {
   }
 
   getEntityQuery(profile) {
-    const query = {"twitch.twitchId": profile.id}
+    const query = {"twitch.id": profile.id}
     return {
         ...query,
         $limit: 1

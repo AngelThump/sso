@@ -17,10 +17,12 @@ const appHooks = require('./app.hooks');
 const channels = require('./channels');
 const authentication = require('./authentication');
 
-const mongoose = require('./mongoose');
+const mongodb = require('./mongodb');
 
 const amazonUtil = require('./middleware/amazon-util');
 const rawBodySaver = require('./middleware/rawbody');
+
+const sequelize = require('./sequelize');
 
 const app = express(feathers());
 
@@ -34,7 +36,7 @@ app.use(helmet({
 app.use(cors());
 app.use(compress());
 app.use(amazonUtil.overrideContentType());
-  
+
 app.use(bodyParser.json({ verify: rawBodySaver() }));
 app.use(bodyParser.urlencoded({ verify: rawBodySaver(), extended: true }));
 app.use(bodyParser.raw({ verify: rawBodySaver(), type: '*/*' }));
@@ -46,7 +48,8 @@ app.use('/', express.static(app.get('public')));
 app.configure(express.rest());
 app.configure(socketio());
 
-app.configure(mongoose);
+app.configure(sequelize);
+app.configure(mongodb);
 
 // Configure other middleware (see `middleware/index.js`)
 app.configure(middleware);
