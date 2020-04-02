@@ -66,6 +66,7 @@
     "sequelize": "^5.21.5",
     "serve-favicon": "^2.5.0",
     "sns-validator": "^0.3.4",
+    "uuid": "^7.0.3",
     "winston": "^3.2.1"
   },
   "devDependencies": {
