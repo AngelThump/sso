@@ -2,6 +2,7 @@ const recaptcha = require('./recaptcha');
 const signup = require('./signup');
 const sns = require('./sns');
 const client = require('redis').createClient();
+const { authenticate } = require('@feathersjs/express');
 const validation = require('./validation');
 const user = require('./user');
 
@@ -29,6 +30,10 @@ module.exports = function (app) {
   app.post('/v1/user/change/email', user.emailChange(app));
   app.get('/user/change/email/:hash', user.verifyEmailChange(app));
   app.post('/v1/user/username', [recaptcha.verify(app),user.getUsername(app)]);
+
+  app.post('/v1/user/change/display-name', authenticate('jwt'), user.changeDisplayName(app))
+  app.post('/v1/user/change/username', authenticate('jwt'), user.changeUsername(app))
+  app.post('/v1/user/verify/password', authenticate('jwt'), user.verifyPassword(app))
 
   app.post('/v1/signup', [recaptcha.verify(app), signup.signup(app)]);
 

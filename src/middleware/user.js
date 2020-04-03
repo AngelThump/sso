@@ -278,3 +278,119 @@ module.exports.verify = function(app) {
         });
     };
 };
+
+module.exports.changeDisplayName = function(app) {
+    return function(req, res, next) {
+
+        if(!req.body.display_name) {
+            return res.json({
+                error: true,
+                errorMsg: "no display name"
+            })
+        }
+
+        const user = req.user;
+
+        if(user.display_name === req.body.display_name) {
+            return res.json({
+                error: true,
+                errorMsg: "same name"
+            })
+        }
+
+        if(user.username !== req.body.display_name.toLowerCase()) {
+            return res.json({
+                error: true,
+                errorMsg: "Cannot change display name that differs from your username. You can only change the capitalization"
+            })
+        }
+
+        const users = app.service('users');
+
+        users.patch(user.id,{
+            display_name: req.body.display_name
+        }).then(() => {
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        }).catch(e => {
+            console.error(e);
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
+
+const bcrypt = require('bcryptjs');
+
+
+module.exports.verifyPassword = function(app) {
+    return async function(req, res, next) {
+
+        if(!req.body.password) {
+            return res.json({
+                error: true,
+                errorMsg: "no password"
+            })
+        }
+
+        const userPassword = 
+        await app.service('users').get(req.user.id)
+        .then(user => {
+            return user.password
+        }).catch(e => {
+            console.error(e);
+        })
+
+        const result = 
+        await bcrypt.compare(req.body.password, userPassword)
+        .catch(e => {
+            console.error(e);
+        });
+
+        if(result) {
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        } else {
+            return res.json({
+                error: true,
+                errorMsg: "passwords do not match"
+            })
+        }
+    };
+};
+
+module.exports.changeUsername = function(app) {
+    return async function(req, res, next) {
+
+        if(!req.body.username) {
+            return res.json({
+                error: true,
+                errorMsg: "no username"
+            })
+        }
+
+        const users = app.service('users');
+
+        users.patch(req.user.id, {
+            username: req.body.username,
+            display_name: req.body.username
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
