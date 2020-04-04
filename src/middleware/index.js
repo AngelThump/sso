@@ -34,6 +34,7 @@ module.exports = function (app) {
   app.post('/v1/user/change/display-name', authenticate('jwt'), user.changeDisplayName(app))
   app.post('/v1/user/change/username', authenticate('jwt'), user.changeUsername(app))
   app.post('/v1/user/verify/password', authenticate('jwt'), user.verifyPassword(app))
+  app.delete('/v1/user/profile-logo', authenticate('jwt'), user.deleteProfileLogo(app))
 
   app.post('/v1/signup', [recaptcha.verify(app), signup.signup(app)]);
 

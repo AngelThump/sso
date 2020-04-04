@@ -394,3 +394,51 @@ module.exports.changeUsername = function(app) {
         })
     };
 };
+
+const AWS = require('aws-sdk');
+
+module.exports.deleteProfileLogo = function(app) {
+    return async function(req, res, next) {
+        const users = app.service('users');
+
+        const profile_logo_url = req.user.profile_logo_url
+        const default_logo_url = app.get('DEFAULT_PROFILE_LOGO_URL');
+        
+        if(default_logo_url === profile_logo_url) {
+            return res.json({
+                error: true,
+                errorMsg: "has default photo, cannot delete"
+            })
+        }
+
+        const id = profile_logo_url.substring(profile_logo_url.lastIndexOf('/')+1, profile_logo_url.length);
+
+        const spacesEndpoint = new AWS.Endpoint('nyc3.digitaloceanspaces.com');
+        const s3 = new AWS.S3({
+            accessKeyId: app.get('doSpacesAccessKey'),
+            secretAccessKey: app.get('doSpacesSecretKey'),
+            endpoint: spacesEndpoint
+        });
+
+        const params = {Bucket: 'images-angelthump/profile-logos', Key: id};
+        s3.deleteObject(params, function(err, data) {
+            if (err) return console.error(err, err.stack);
+        });
+
+        users.patch(req.user.id, {
+            profile_logo_url: default_logo_url
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: "",
+                profile_logo_url: default_logo_url
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};

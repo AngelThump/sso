@@ -89,13 +89,12 @@ module.exports = function (app) {
     },
     offline_image_url: {
       type: DataTypes.TEXT,
-      allowNull: false,
-      defaultValue: 'https://angelthump.sfo2.cdn.digitaloceanspaces.com/offline-screens/default_offline.jpg'
+      allowNull: true
     },
     profile_logo_url: {
       type: DataTypes.TEXT,
       allowNull: false,
-      defaultValue: 'https://angelthump.sfo2.cdn.digitaloceanspaces.com/profile-pictures/default_profile_picture.png'
+      defaultValue: 'https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_profile_picture.png'
     },
     followers: {
       type: DataTypes.BIGINT,
