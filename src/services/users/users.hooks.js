@@ -6,6 +6,7 @@ const verifyHooks = require('authentication-local-management-at').hooks;
 const accountService = require('../auth-management/notifier');
 const streamkey = require('./streamkey');
 const checkPermissions = require('feathers-permissions');
+const email = require('./email');
 
 const restrictToOwner = [
   setField({
@@ -41,7 +42,7 @@ module.exports = {
     ],
     create: [ disallow('external'), hashPassword('password'), streamkey.create(), verifyHooks.addVerification()],
     update: [ disallow()],
-    patch: [ disallow('external'), streamkey.considerReset() ],
+    patch: [ disallow('external'), email.considerVerify(), streamkey.considerReset() ],
     remove: [ disallow()]
   },
 
@@ -68,7 +69,13 @@ module.exports = {
       verifyHooks.removeVerification()
     ],
     update: [],
-    patch: [],
+    patch: [
+      async context => {
+        if (typeof context.data.email !== "undefined") {
+          await accountService(context.app).notifier('resendVerifySignup', context.result);
+        }
+      }
+    ],
     remove: []
   },
 

@@ -13,29 +13,20 @@ const keyGen = email => {
 
 //create stream key when user registers
 module.exports.create = function() {
-  return function(hook) {
-    hook.data = Object.assign({}, hook.data, {
-      stream_key: keyGen(hook.data.email)
+  return function(context) {
+    context.data = Object.assign({}, context.data, {
+      stream_key: keyGen(context.data.email)
     });
   };
 };
 
 //reset on password change
 module.exports.considerReset = function() {
-  return function(hook) {
-    if (typeof hook.data.password !== "undefined") {
-      hook.data = Object.assign({}, hook.data, {
-        stream_key: keyGen(hook.data.email)
+  return function(context) {
+    if (typeof context.data.password !== "undefined") {
+      context.data = Object.assign({}, context.data, {
+        stream_key: keyGen(context.data.email)
       });
     }
-  };
-};
-
-//reset when user requests it
-module.exports.reset = function() {
-  return function(hook) {
-    hook.data = Object.assign({}, hook.data, {
-      stream_key: keyGen(hook.data.email)
-    });
   };
 };

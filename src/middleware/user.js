@@ -395,6 +395,36 @@ module.exports.changeUsername = function(app) {
     };
 };
 
+module.exports.changeEmail = function(app) {
+    return async function(req, res, next) {
+
+        if(!req.body.email) {
+            return res.json({
+                error: true,
+                errorMsg: "no email"
+            })
+        }
+
+        const users = app.service('users');
+
+        users.patch(req.user.id, {
+            email: req.body.email
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
+
+
 const AWS = require('aws-sdk');
 
 module.exports.deleteProfileLogo = function(app) {
