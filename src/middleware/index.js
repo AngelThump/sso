@@ -32,8 +32,11 @@ module.exports = function (app) {
   app.post('/v1/user/username', [recaptcha.verify(app),user.getUsername(app)]);
 
   app.post('/v1/user/verify/password', authenticate('jwt'), user.verifyPassword(app))
+  app.post('/v1/user/verify/patreon', authenticate('jwt'), user.verifyPatreon(app))
   app.delete('/v1/user/profile-logo', authenticate('jwt'), user.deleteProfileLogo(app))
   app.delete('/v1/user/offline-banner', authenticate('jwt'), user.deleteOfflineBanner(app))
+  app.delete('/v1/user/patreon', authenticate('jwt'), user.deletePatreon(app))
+  app.delete('/v1/user/twitch', authenticate('jwt'), user.deleteTwitch(app))
   app.put('/v1/user/stream-key', authenticate('jwt'), user.resetStreamKey(app))
   app.put('/v1/user/display-name', authenticate('jwt'), user.changeDisplayName(app))
   app.put('/v1/user/username', authenticate('jwt'), user.changeUsername(app))

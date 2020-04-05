@@ -127,6 +127,18 @@ module.exports = function (app) {
     twitch: {
       type: DataTypes.JSONB,
       allowNull: true
+    },
+    twitchChannel: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    isPatron: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    patronTier: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     timestamps: true,

@@ -8,6 +8,11 @@ const RedisStore = require('connect-redis')(session);
 const redisClient = redis.createClient();
 
 class PatreonStrategy extends OAuthStrategy {
+
+  constructor(app) {
+    super(app);
+  }
+
   async getProfile (authResult) {
     const accessToken = authResult.access_token;
 
@@ -45,9 +50,17 @@ class PatreonStrategy extends OAuthStrategy {
         $limit: 1
     };
   }
+
+  async getRedirect (data) {
+    return `${this.app.get('authentication').oauth.redirect}`
+  }
 }
 
 class TwitchStrategy extends OAuthStrategy {
+  constructor(app) {
+    super(app);
+  }
+
   async getProfile (authResult) {
     const accessToken = authResult.access_token;
 
@@ -71,9 +84,9 @@ class TwitchStrategy extends OAuthStrategy {
     const baseData = await super.getEntityData(profile);
 
     return {
+      twitchChannel: profile.login,
       twitch: {
         ...baseData,
-        channel: profile.login,
         access_token: profile.access_token,
         refresh_token: profile.refresh_token
       }
@@ -87,6 +100,10 @@ class TwitchStrategy extends OAuthStrategy {
         $limit: 1
     };
   }
+
+  async getRedirect (data) {
+    return `${this.app.get('authentication').oauth.redirect}`
+  }
 }
 
 module.exports = app => {
@@ -94,8 +111,8 @@ module.exports = app => {
 
   authentication.register('jwt', new JWTStrategy());
   authentication.register('local', new LocalStrategy());
-  authentication.register('patreon', new PatreonStrategy());
-  authentication.register('twitch', new TwitchStrategy());
+  authentication.register('patreon', new PatreonStrategy(app));
+  authentication.register('twitch', new TwitchStrategy(app));
 
   app.use('/authentication', authentication);
   app.configure(expressOauth({

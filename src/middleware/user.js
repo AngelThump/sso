@@ -365,6 +365,142 @@ module.exports.verifyPassword = function(app) {
     };
 };
 
+const axios = require('axios');
+
+const refresh = (app, userPatreonObject) => {
+    const patreon = app.get('patreon');
+    const CLIENT_ID = patreon.CLIENT_ID;
+    const CLIENT_SECRET = patreon.CLIENT_SECRET;
+
+    axios.get('https://www.patreon.com/api/oauth2/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        form: {
+            'grant_type': 'refresh_token',
+            'refresh_token': userPatreonObject.refresh_token,
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+        }
+    }).then(data => {
+        let patreonObject = userPatreonObject;
+        patreonObject.access_token = data.access_token;
+        patreonObject.refresh_token = data.refresh_token;
+
+        app.service('users').patch(user._id, {
+            patreon: patreonObject
+        }).then(() => {
+            verify(app);
+        }).catch(e => {
+            return console.error(e.message);
+        });
+    }).catch(e => {
+        console.error(e.response.data);
+    })
+};
+
+module.exports.verifyPatreon = function (app) {
+    return async function(req, res, next) {
+        const patreon = app.get('patreon');
+        const campaignID = patreon.campaignID;
+        const user = req.user;
+
+        const userPatreonObject =
+        await app.service('users')
+        .get(user.id)
+        .then(data => {
+            return data.patreon
+        }).catch(e => {
+            console.error(e.message)
+        })
+
+        const patronData =
+        await axios('https://www.patreon.com/api/oauth2/v2/identity?include=memberships.campaign&fields%5Bmember%5D=full_name,is_follower,email,last_charge_date,last_charge_status,lifetime_support_cents,patron_status,currently_entitled_amount_cents,pledge_relationship_start,will_pay_amount_cents&fields%5Btier%5D=title&fields%5Buser%5D=full_name,hide_pledges', {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userPatreonObject.access_token}`,
+            }
+        }).then(data => {
+            if(data.included && typeof data.included[Symbol.iterator] === 'function') {
+                for(const included of data.included) {
+                    if(included.relationships) {
+                        if(campaignID == included.relationships.campaign.data.id) {
+                            return included;
+                        }
+                    }
+                }
+            }
+        }).catch(e => {
+            if(e.status === 401) {
+                return refresh(app, userPatreonObject.refresh_token);
+            }
+            console.error(e.response.data);
+            return res.json({
+                error: true,
+                errorMsg: "Something went wrong fetching patreon api"
+            })
+        });
+
+        if(!patronData) {
+            return res.json({error: true, errorMsg: "You are currently not a patron"});
+        }
+
+        const amount = patronData.attributes.currently_entitled_amount_cents;
+        const last_charged_status = patronData.attributes.last_charge_status.toLowerCase();
+
+        // the amount was less than $5
+        if (amount < 500) {
+            return res.json({error: true, errorMsg: "Patron status is only allowed at $5 or more"});
+            //console.log("debug (amount): " + patronData.attributes);
+        }
+
+        /*
+        // the user is not an active patron
+        if (patron_status !== 'active_patron') {
+            return res.json({error: true, errorMsg: "Not an active patron"});
+            //console.log("debug (patron_status): " + patronData.attributes);
+        }*/
+
+        // the last transaction failed
+        if (last_charged_status !== 'paid') {
+            return res.json({error: true, errorMsg: "Last patreon payment was declined"});
+            //console.log("debug (last_charged_status): " + data.attributes);
+        }
+
+        // the user has not verified the email attached to their at account
+        if (!user.isVerified) {
+            return res.json({error: true, errorMsg: "Email is not verified!"});
+        }
+
+        let newTier;
+
+        if(amount >= 500 && amount < 1000) {
+            newTier = 1;
+        } else if (amount >= 1000 && amount < 5000) {
+            newTier = 2
+        } else if (amount >= 5000) {
+            newTier = 3;
+        }
+
+        // the user is already verified but linking patreon should be idempotent
+        if (userPatreonObject.isPatron && newTier === userPatreonObject.tier) {
+            return res.json({error: true, errorMsg: "You are a patron already!"});
+        }
+
+        app.service('users').patch(user._id, {
+            patreon: patreonObject,
+            isPatron: true,
+            patronTier: newTier
+        }).then(() => {
+            return res.json({error: false, errorMsg:"", message: "Updated Patreon Status"});
+        }).catch(e => {
+            console.error(`db error while saving patron status for ${user._id}`);
+            return res.json({error: true, errorMsg:"An error occurred while linking your account!"});
+        });
+    }
+};
+
 module.exports.changeUsername = function(app) {
     return async function(req, res, next) {
 
@@ -563,6 +699,55 @@ module.exports.changeNSFW = function(app) {
 
         users.patch(user.id, {
             nsfw: req.body.nsfw
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
+
+module.exports.deletePatreon = function(app) {
+    return async function(req, res, next) {
+
+        const user = req.user;
+        const users = app.service('users');
+
+        users.patch(user.id, {
+            patreon: null,
+            isPatron: null,
+            patronTier: null
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
+
+module.exports.deleteTwitch = function(app) {
+    return async function(req, res, next) {
+
+        const user = req.user;
+        const users = app.service('users');
+
+        users.patch(user.id, {
+            twitch: null,
+            twitchChannel: null
         }).then(()=>{
             return res.json({
                 error: false,
