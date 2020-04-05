@@ -401,10 +401,9 @@ module.exports.deleteProfileLogo = function(app) {
     return async function(req, res, next) {
         const users = app.service('users');
 
-        const profile_logo_url = req.user.profile_logo_url
-        const default_logo_url = app.get('DEFAULT_PROFILE_LOGO_URL');
+        const profile_logo_url = req.user.profile_logo_url;
         
-        if(default_logo_url === profile_logo_url) {
+        if(!profile_logo_url) {
             return res.json({
                 error: true,
                 errorMsg: "has default photo, cannot delete"
@@ -426,12 +425,118 @@ module.exports.deleteProfileLogo = function(app) {
         });
 
         users.patch(req.user.id, {
-            profile_logo_url: default_logo_url
+            profile_logo_url: null
         }).then(()=>{
             return res.json({
                 error: false,
-                errorMsg: "",
-                profile_logo_url: default_logo_url
+                errorMsg: ""
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
+
+module.exports.deleteOfflineBanner = function(app) {
+    return async function(req, res, next) {
+        const users = app.service('users');
+
+        const offline_banner_url = req.user.offline_banner_url;
+        
+        if(!offline_banner_url) {
+            return res.json({
+                error: true,
+                errorMsg: "has default photo, cannot delete"
+            })
+        }
+
+        const id = offline_banner_url.substring(offline_banner_url.lastIndexOf('/')+1, offline_banner_url.length);
+
+        const spacesEndpoint = new AWS.Endpoint('nyc3.digitaloceanspaces.com');
+        const s3 = new AWS.S3({
+            accessKeyId: app.get('doSpacesAccessKey'),
+            secretAccessKey: app.get('doSpacesSecretKey'),
+            endpoint: spacesEndpoint
+        });
+
+        const params = {Bucket: 'images-angelthump/offline-banners', Key: id};
+        s3.deleteObject(params, function(err, data) {
+            if (err) return console.error(err, err.stack);
+        });
+
+        users.patch(req.user.id, {
+            offline_banner_url: null
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
+
+const crypto = require('crypto');
+
+const keyGen = email => {
+    const seed = `${crypto.randomBytes(8).toString('hex')}${email}`;
+    const key = crypto.createHash('sha256').update(seed).digest('hex');
+
+    return key;
+};
+
+module.exports.resetStreamKey = function(app) {
+    return async function(req, res, next) {
+        const user = req.user;
+        const new_stream_key = keyGen(user.email);
+        const users = app.service('users');
+
+        users.patch(user.id, {
+            stream_key: new_stream_key
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: ""
+            })
+        }).catch(e=>{
+            console.error(e)
+            return res.json({
+                error: true,
+                errorMsg: "something went wrong with users service"
+            })
+        })
+    };
+};
+
+
+module.exports.changeNSFW = function(app) {
+    return async function(req, res, next) {
+
+        if(typeof req.body.nsfw === 'undefined') {
+            return res.json({
+                error: true,
+                errorMsg: "no nsfw in body"
+            })
+        }
+
+        const user = req.user;
+        const users = app.service('users');
+
+        users.patch(user.id, {
+            nsfw: req.body.nsfw
+        }).then(()=>{
+            return res.json({
+                error: false,
+                errorMsg: ""
             })
         }).catch(e=>{
             console.error(e)

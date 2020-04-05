@@ -18,10 +18,10 @@ module.exports = function (app) {
 
   const offlineBlobStore = store({
     client: s3,
-    bucket: 'images-angelthump/offline-images'
+    bucket: 'images-angelthump/offline-banners'
   });
 
-  app.use('/uploads/offline', 
+  app.use('/uploads/offline-banners', 
     (new Uploads(null, app),
     multipartMiddleware.single('uri'),
     (req,res,next) => {
@@ -31,14 +31,14 @@ module.exports = function (app) {
     BlobService({Model: offlineBlobStore})
   ));
 
-  app.service('uploads/offline').hooks(hooks);
+  app.service('uploads/offline-banners').hooks(hooks);
 
   const profilePicBlobStore = store({
     client: s3,
     bucket: 'images-angelthump/profile-logos'
   });
 
-  app.use('/uploads/profile',
+  app.use('/uploads/profile-logos',
       (new Uploads(null, app),
       multipartMiddleware.single('uri'),
       (req,res,next) => {
@@ -48,5 +48,5 @@ module.exports = function (app) {
       BlobService({Model: profilePicBlobStore})
   ));
 
-  app.service('uploads/profile').hooks(hooks);
+  app.service('uploads/profile-logos').hooks(hooks);
 };

@@ -14,7 +14,7 @@ module.exports = function() {
     const path = context.path
     if(path === 'uploads/profile') {
         const url = context.params.user.profile_logo_url;
-        if(url === app.get('DEFAULT_PROFILE_PICTURE_URL')) {
+        if(!url) {
             return;
         }
         const id = url.substring(url.lastIndexOf('/')+1, url.length);
@@ -24,12 +24,12 @@ module.exports = function() {
             if (err) return console.log(err, err.stack);
         });
     } else if (path === 'uploads/offline') {
-        const url = context.params.user.offline_image_url;
-        if(url) {
+        const url = context.params.user.offline_banner_url;
+        if(!url) {
             return;
         }
         const id = url.substring(url.lastIndexOf('/')+1, url.length);
-        const params = {Bucket: 'images-angelthump/offline-images', Key: id};
+        const params = {Bucket: 'images-angelthump/offline-banners', Key: id};
         s3.deleteObject(params, function(err, data) {
             if (err) return console.log(err, err.stack);
         });

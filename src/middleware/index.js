@@ -31,10 +31,13 @@ module.exports = function (app) {
   app.get('/user/change/email/:hash', user.verifyEmailChange(app));
   app.post('/v1/user/username', [recaptcha.verify(app),user.getUsername(app)]);
 
-  app.post('/v1/user/change/display-name', authenticate('jwt'), user.changeDisplayName(app))
-  app.post('/v1/user/change/username', authenticate('jwt'), user.changeUsername(app))
   app.post('/v1/user/verify/password', authenticate('jwt'), user.verifyPassword(app))
   app.delete('/v1/user/profile-logo', authenticate('jwt'), user.deleteProfileLogo(app))
+  app.delete('/v1/user/offline-banner', authenticate('jwt'), user.deleteOfflineBanner(app))
+  app.put('/v1/user/stream-key', authenticate('jwt'), user.resetStreamKey(app))
+  app.put('/v1/user/display-name', authenticate('jwt'), user.changeDisplayName(app))
+  app.put('/v1/user/username', authenticate('jwt'), user.changeUsername(app))
+  app.put('/v1/user/nsfw', authenticate('jwt'), user.changeNSFW(app))
 
   app.post('/v1/signup', [recaptcha.verify(app), signup.signup(app)]);
 

@@ -87,14 +87,15 @@ module.exports = function (app) {
       allowNull: false,
       defaultValue: false
     },
-    offline_image_url: {
+    offline_banner_url: {
       type: DataTypes.TEXT,
-      allowNull: true
+      allowNull: true,
+      defaultValue: null
     },
     profile_logo_url: {
       type: DataTypes.TEXT,
-      allowNull: false,
-      defaultValue: 'https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_profile_picture.png'
+      allowNull: true,
+      defaultValue: null
     },
     followers: {
       type: DataTypes.BIGINT,
