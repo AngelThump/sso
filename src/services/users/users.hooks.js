@@ -1,67 +1,29 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { setField } = require('feathers-authentication-hooks');
 const { hashPassword, protect } = require('@feathersjs/authentication-local').hooks;
-const { discard , iff, isProvider, disallow } = require('feathers-hooks-common');
+const { iff, isProvider, disallow, discardQuery } = require('feathers-hooks-common');
 const verifyHooks = require('authentication-local-management-at').hooks;
 const accountService = require('../auth-management/notifier');
 const streamkey = require('./streamkey');
-const checkPermissions = require('feathers-permissions');
 const email = require('./email');
-
-const restrictToOwner = [
-  setField({
-    from: 'params.user.id',
-    as: 'params.query.id'
-  })
-];
+const dispatch = require('./dispatch');
 
 module.exports = {
   before: {
-    all: [],
-    find: [
-      authenticate('jwt'),
-      checkPermissions({
-        roles: ['admin'],
-        field: 'type',
-        error: false
-      }),
-      iff(context => !context.params.permitted,
-        ...restrictToOwner
-      )
-    ],
-    get: [
-      authenticate('jwt'), 
-      checkPermissions({
-        roles: ['admin'],
-        field: 'type',
-        error: false
-      }),
-      iff(context => !context.params.permitted,
-        ...restrictToOwner
-      )
-    ],
+    all: [iff(isProvider('external'), discardQuery('password','title','stream_password','patreon','twitch'))],
+    find: [ authenticate('api-key') ],
+    get: [ authenticate('jwt', 'api-key') ],
     create: [ disallow('external'), hashPassword('password'), streamkey.create(), verifyHooks.addVerification()],
     update: [ disallow()],
-    patch: [ disallow('external'), email.considerVerify(), streamkey.considerReset() ],
+    patch: [ authenticate('api-key'), email.considerVerify(), streamkey.considerReset() ],
     remove: [ disallow()]
   },
 
   after: {
-    all: [ 
-      // Make sure the password field is never sent to the client
-      // Always must be the last hook
+    all: [
       protect('password')
     ],
-    find: [
-      iff(isProvider('external'),
-        discard('bans', 'patreon.access_token', 'patreon.refresh_token', 'twitch.access_token', 'twitch.refresh_token', 'verifyToken', 'verifyShortToken', 'resetToken', 'resetShortToken', 'verifyChanges', 'resetExpired', 'verifyExpires')
-      )
-    ],
-    get: [
-      iff(isProvider('external'),
-        discard('bans', 'patreon.access_token', 'patreon.refresh_token', 'twitch.access_token', 'twitch.refresh_token', 'verifyToken', 'verifyShortToken', 'resetToken', 'resetShortToken', 'verifyChanges', 'resetExpired', 'verifyExpires')
-      )
-    ],
+    find: [ iff(isProvider('external'), dispatch()) ],
+    get: [ iff(isProvider('external'), dispatch()) ],
     create: [
       async context => {
         await accountService(context.app).notifier('resendVerifySignup', context.result);

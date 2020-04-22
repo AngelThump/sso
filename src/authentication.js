@@ -1,6 +1,7 @@
 const { AuthenticationService, JWTStrategy } = require('@feathersjs/authentication');
 const { LocalStrategy } = require('@feathersjs/authentication-local');
 const { expressOauth, OAuthStrategy } = require('@feathersjs/authentication-oauth');
+const { ApiKeyStrategy } =  require('@thesinding/authentication-api-key');
 const axios = require('axios');
 const redis = require('redis');
 const session = require('express-session');
@@ -30,11 +31,9 @@ class PatreonStrategy extends OAuthStrategy {
   }
 
   async getEntityData(profile) {
-    const baseData = await super.getEntityData(profile.data);
-
     return {
       patreon: {
-        ...baseData,
+        id: profile.data.id,
         isPatron: false,
         tier: 0,
         access_token: profile.access_token,
@@ -81,12 +80,10 @@ class TwitchStrategy extends OAuthStrategy {
   }
 
   async getEntityData(profile) {
-    const baseData = await super.getEntityData(profile);
-
     return {
-      twitchChannel: profile.login,
       twitch: {
-        ...baseData,
+        id: profile.id,
+        channel: profile.login,
         access_token: profile.access_token,
         refresh_token: profile.refresh_token
       }
@@ -113,6 +110,7 @@ module.exports = app => {
   authentication.register('local', new LocalStrategy());
   authentication.register('patreon', new PatreonStrategy(app));
   authentication.register('twitch', new TwitchStrategy(app));
+  authentication.register('api-key', new ApiKeyStrategy());
 
   app.use('/authentication', authentication);
   app.configure(expressOauth({

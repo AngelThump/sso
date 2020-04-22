@@ -488,10 +488,11 @@ module.exports.verifyPatreon = function (app) {
             return res.json({error: true, errorMsg: "You are a patron already!"});
         }
 
+        userPatreonObject.isPatron = true;
+        userPatreonObject.tier = newTier;
+
         app.service('users').patch(user._id, {
-            patreon: patreonObject,
-            isPatron: true,
-            patronTier: newTier
+            patreon: patreonObject
         }).then(() => {
             return res.json({error: false, errorMsg:"", message: "Updated Patreon Status"});
         }).catch(e => {
@@ -721,9 +722,7 @@ module.exports.deletePatreon = function(app) {
         const users = app.service('users');
 
         users.patch(user.id, {
-            patreon: null,
-            isPatron: null,
-            patronTier: null
+            patreon: null
         }).then(()=>{
             return res.json({
                 error: false,
@@ -746,8 +745,7 @@ module.exports.deleteTwitch = function(app) {
         const users = app.service('users');
 
         users.patch(user.id, {
-            twitch: null,
-            twitchChannel: null
+            twitch: null
         }).then(()=>{
             return res.json({
                 error: false,

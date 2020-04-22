@@ -1,7 +1,7 @@
 {
   "name": "sso-angelthump",
   "description": "Authentication for AngelThump",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "homepage": "",
   "main": "src",
   "keywords": [
@@ -23,10 +23,12 @@
     "npm": ">= 3.0.0"
   },
   "scripts": {
-    "test": "npm run eslint && npm run mocha",
+    "test": "npm run eslint && NODE_ENV= npm run mocha",
     "eslint": "eslint src/. test/. --config .eslintrc.json",
     "dev": "nodemon src/",
     "start": "node src/",
+    "production": "NODE_ENV=production node src/",
+    "production-windows": "set NODE_ENV=production&&node src/",
     "mocha": "mocha test/ --recursive --exit"
   },
   "dependencies": {
@@ -39,6 +41,7 @@
     "@feathersjs/feathers": "^4.5.2",
     "@feathersjs/socketio": "^4.5.2",
     "@feathersjs/transport-commons": "^4.5.2",
+    "@thesinding/authentication-api-key": "0.0.5",
     "authentication-local-management-at": "^4.0.4",
     "aws-sdk": "^2.653.0",
     "axios": "^0.19.2",
