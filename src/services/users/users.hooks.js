@@ -7,11 +7,12 @@ const streamkey = require('./streamkey');
 const email = require('./email');
 const dispatch = require('./dispatch');
 const uuid = require('./uuid');
+const insensitive = require('./insensitive')
 
 module.exports = {
   before: {
     all: [iff(isProvider('external'), discardQuery('password','title','stream_password','patreon','twitch'))],
-    find: [ authenticate('api-key') ],
+    find: [ authenticate('api-key'), insensitive() ],
     get: [ authenticate('jwt', 'api-key') ],
     create: [ disallow('external'), uuid.create(), hashPassword('password'), streamkey.create(), verifyHooks.addVerification()],
     update: [ disallow()],
