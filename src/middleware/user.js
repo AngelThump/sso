@@ -445,8 +445,6 @@ module.exports.verifyPatreon = function (app) {
             })
         });
 
-        console.log(patronData);
-
         if(!patronData) {
             return res.json({error: true, errorMsg: "You are currently not a patron"});
         }
