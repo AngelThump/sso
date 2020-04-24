@@ -486,22 +486,20 @@ module.exports.verifyPatreon = function (app) {
             newTier = 3;
         }
 
-        const patreonObject = userPatreonObject.patreon;
-
         // the user is already verified but linking patreon should be idempotent
-        if (patreonObject.isPatron && newTier === patreonObject.tier) {
+        if (userPatreonObject.isPatron && newTier === userPatreonObject.tier) {
             return res.json({error: true, errorMsg: "You are a patron already!"});
         }
         
-        patreonObject.isPatron = true;
-        patreonObject.tier = newTier;
+        userPatreonObject.isPatron = true;
+        userPatreonObject.tier = newTier;
 
-        app.service('users').patch(user._id, {
-            patreon: patreonObject
+        app.service('users').patch(user.id, {
+            patreon: userPatreonObject
         }).then(() => {
             return res.json({error: false, errorMsg:"", message: "Updated Patreon Status"});
         }).catch(e => {
-            console.error(`db error while saving patron status for ${user._id}`);
+            console.error(`db error while saving patron status for ${user.id}`);
             return res.json({error: true, errorMsg:"An error occurred while linking your account!"});
         });
     }
