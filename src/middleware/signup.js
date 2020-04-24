@@ -1,32 +1,5 @@
-module.exports = function(app) {
+module.exports.signup = function(app) {
   return function(req, res, next) {
-    if(req.recaptchaResponse) {
-      const body = req.body;
-      // Get the user service and `create` a new user
-      app.service('users').create({
-        username: body.username,
-        email: body.email,
-        password: body.password
-      })
-      // Then redirect to the login page
-      .then(() => {
-        res.redirect('https://angelthump.com/dashboard');
-        //res.json(e);
-      })
-      // On errors, just call our error middleware
-      .catch(error => {
-        console.error(error);
-        res.render('errors.ejs', {code: error.code, message: error.message});
-      });
-    } else {
-      res.render('errors.ejs', {code: 403, message: 'failed captcha'});
-    }
-  };
-};
-
-module.exports.signupv2 = function(app) {
-  return function(req, res, next) {
-    console.log(req.recaptchaResponse);
     if(!req.recaptchaResponse) {
       return res.json({
         error: true,
@@ -58,7 +31,8 @@ module.exports.signupv2 = function(app) {
     app.service('users').create({
       username: req.body.username,
       email: req.body.email,
-      password: req.body.password
+      password: req.body.password,
+      display_name: req.body.username
     })
     .then(user => {
       return res.json({
