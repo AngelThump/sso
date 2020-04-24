@@ -6,13 +6,14 @@ const accountService = require('../auth-management/notifier');
 const streamkey = require('./streamkey');
 const email = require('./email');
 const dispatch = require('./dispatch');
+const uuid = require('./uuid');
 
 module.exports = {
   before: {
     all: [iff(isProvider('external'), discardQuery('password','title','stream_password','patreon','twitch'))],
     find: [ authenticate('api-key') ],
     get: [ authenticate('jwt', 'api-key') ],
-    create: [ disallow('external'), hashPassword('password'), streamkey.create(), verifyHooks.addVerification()],
+    create: [ disallow('external'), uuid.create(), hashPassword('password'), streamkey.create(), verifyHooks.addVerification()],
     update: [ disallow()],
     patch: [ authenticate('api-key'), email.considerVerify(), streamkey.considerReset() ],
     remove: [ disallow()]

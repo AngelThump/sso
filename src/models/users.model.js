@@ -2,14 +2,12 @@
 // for more of what you can do here.
 const Sequelize = require('sequelize');
 const DataTypes = Sequelize.DataTypes;
-const { v4: uuidv4 } = require('uuid');
 
 module.exports = function (app) {
   const sequelizeClient = app.get('sequelizeClient');
   const users = sequelizeClient.define('users', {
     id: {
       type: DataTypes.UUID,
-      defaultValue: uuidv4(),
       allowNull: false,
       primaryKey: true
     },
