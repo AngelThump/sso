@@ -10,10 +10,9 @@ process.on('unhandledRejection', (reason, p) =>
 );
 
 server.on('listening', () => {
-    if (process.env.NODE_ENV === "production") {
-      logger.info('Feathers application production build started on http://%s:%d', app.get('host'), port)
-    } else {
-      logger.info('Feathers application development build started on http://%s:%d', app.get('host'), port)
-    }
+  if (process.env.NODE_ENV === "production") {
+    logger.info('Feathers application production build started on http://%s:%d', app.get('host'), port)
+  } else {
+    logger.info('Feathers application development build started on http://%s:%d', app.get('host'), port)
   }
-);
+});

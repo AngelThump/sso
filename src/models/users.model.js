@@ -90,12 +90,12 @@ module.exports = function (app) {
     offline_banner_url: {
       type: DataTypes.TEXT,
       allowNull: true,
-      defaultValue: null
+      defaultValue: `https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_offline_banner.png`
     },
     profile_logo_url: {
       type: DataTypes.TEXT,
       allowNull: true,
-      defaultValue: null
+      defaultValue: `https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_profile_picture.png`
     },
     followers: {
       type: DataTypes.BIGINT,

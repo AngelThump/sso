@@ -50,7 +50,10 @@ module.exports.getUsername = function(app) {
             })
         }
 
-        const user = await app.service('users').find({email: req.body.email})
+        const user = await app.service('users')
+        .find({
+            query: {email: req.body.email}
+        })
         .then(users => {
             return users.data[0];
         }).catch((e) => {
@@ -383,10 +386,10 @@ const refresh = (app, userPatreonObject) => {
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET,
         }
-    }).then(data => {
+    }).then(response => {
         let patreonObject = userPatreonObject;
-        patreonObject.access_token = data.access_token;
-        patreonObject.refresh_token = data.refresh_token;
+        patreonObject.access_token = response.data.access_token;
+        patreonObject.refresh_token = response.data.refresh_token;
 
         app.service('users').patch(user._id, {
             patreon: patreonObject
@@ -421,9 +424,9 @@ module.exports.verifyPatreon = function (app) {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${userPatreonObject.access_token}`,
             }
-        }).then(data => {
-            if(data.included && typeof data.included[Symbol.iterator] === 'function') {
-                for(const included of data.included) {
+        }).then(response => {
+            if(response.data.included && typeof response.data.included[Symbol.iterator] === 'function') {
+                for(const included of response.data.included) {
                     if(included.relationships) {
                         if(campaignID == included.relationships.campaign.data.id) {
                             return included;
@@ -441,6 +444,8 @@ module.exports.verifyPatreon = function (app) {
                 errorMsg: "Something went wrong fetching patreon api"
             })
         });
+
+        console.log(patronData);
 
         if(!patronData) {
             return res.json({error: true, errorMsg: "You are currently not a patron"});
@@ -483,13 +488,15 @@ module.exports.verifyPatreon = function (app) {
             newTier = 3;
         }
 
+        const patreonObject = userPatreonObject.patreon;
+
         // the user is already verified but linking patreon should be idempotent
-        if (userPatreonObject.isPatron && newTier === userPatreonObject.tier) {
+        if (patreonObject.isPatron && newTier === patreonObject.tier) {
             return res.json({error: true, errorMsg: "You are a patron already!"});
         }
-
-        userPatreonObject.isPatron = true;
-        userPatreonObject.tier = newTier;
+        
+        patreonObject.isPatron = true;
+        patreonObject.tier = newTier;
 
         app.service('users').patch(user._id, {
             patreon: patreonObject
