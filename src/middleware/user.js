@@ -480,9 +480,9 @@ module.exports.verifyPatreon = function (app) {
 
         if(amount >= 500 && amount < 1000) {
             newTier = 1;
-        } else if (amount >= 1000 && amount < 5000) {
+        } else if (amount >= 1000 && amount < 3000) {
             newTier = 2
-        } else if (amount >= 5000) {
+        } else if (amount >= 3000) {
             newTier = 3;
         }
 
