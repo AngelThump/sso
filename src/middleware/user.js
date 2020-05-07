@@ -370,22 +370,26 @@ module.exports.verifyPassword = function(app) {
 
 const axios = require('axios');
 
+const formUrlEncoded = x =>
+   Object.keys(x).reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '');
+
 const refresh = (app, userPatreonObject) => {
     const patreon = app.get('patreon');
     const CLIENT_ID = patreon.CLIENT_ID;
     const CLIENT_SECRET = patreon.CLIENT_SECRET;
 
-    axios.get('https://www.patreon.com/api/oauth2/token', {
+    axios({
         method: 'POST',
+        url: "https://www.patreon.com/api/oauth2/token",
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        form: {
-            'grant_type': 'refresh_token',
-            'refresh_token': userPatreonObject.refresh_token,
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-        }
+        data: formUrlEncoded({
+            grant_type: 'refresh_token',
+            refresh_token: user.patreon.refresh_token,
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+        })
     }).then(response => {
         let patreonObject = userPatreonObject;
         patreonObject.access_token = response.data.access_token;
@@ -435,8 +439,8 @@ module.exports.verifyPatreon = function (app) {
                 }
             }
         }).catch(e => {
-            if(e.status === 401) {
-                return refresh(app, userPatreonObject.refresh_token);
+            if(e.response.status === 401) {
+                return refresh(app, userPatreonObject);
             }
             console.error(e.response.data);
             return res.json({
@@ -450,6 +454,7 @@ module.exports.verifyPatreon = function (app) {
         }
 
         const amount = patronData.attributes.currently_entitled_amount_cents;
+        const patron_status = patronData.attributes.patron_status.toLowerCase();
         const last_charged_status = patronData.attributes.last_charge_status.toLowerCase();
 
         // the amount was less than $5
@@ -458,12 +463,11 @@ module.exports.verifyPatreon = function (app) {
             //console.log("debug (amount): " + patronData.attributes);
         }
 
-        /*
         // the user is not an active patron
         if (patron_status !== 'active_patron') {
             return res.json({error: true, errorMsg: "Not an active patron"});
             //console.log("debug (patron_status): " + patronData.attributes);
-        }*/
+        }
 
         // the last transaction failed
         if (last_charged_status !== 'paid') {
