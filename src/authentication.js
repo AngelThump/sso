@@ -66,7 +66,8 @@ class TwitchStrategy extends OAuthStrategy {
     let { data } = 
     await axios.get('https://api.twitch.tv/helix/users', {
       headers: {
-        authorization: `Bearer ${accessToken}`
+        authorization: `Bearer ${accessToken}`,
+        "Client-ID": this.app.get('authentication').oauth.twitch.key
       }
     }).catch(e => {
       console.error(e);
