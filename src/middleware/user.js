@@ -599,7 +599,7 @@ module.exports.deleteProfileLogo = function(app) {
         });
 
         users.patch(req.user.id, {
-            profile_logo_url: null
+            profile_logo_url: 'https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_profile_picture.png'
         }).then(()=>{
             return res.json({
                 error: false,
@@ -643,7 +643,7 @@ module.exports.deleteOfflineBanner = function(app) {
         });
 
         users.patch(req.user.id, {
-            offline_banner_url: null
+            offline_banner_url: 'https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_offline_banner.png'
         }).then(()=>{
             return res.json({
                 error: false,
