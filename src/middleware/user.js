@@ -453,6 +453,8 @@ module.exports.verifyPatreon = function (app) {
             return res.json({error: true, errorMsg: "You are currently not a patron"});
         }
 
+        console.log(patronData);
+
         const amount = patronData.attributes.currently_entitled_amount_cents;
         const patron_status = patronData.attributes.patron_status.toLowerCase();
         const last_charged_status = patronData.attributes.last_charge_status.toLowerCase();
