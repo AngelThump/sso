@@ -1,6 +1,7 @@
 /* eslint-disable require-atomic-updates */
 module.exports = function () { // eslint-disable-line no-unused-vars
     return async context => {
+        if(!context.params.authentication) return context;
         if(context.params.authentication.strategy === 'api-key') {
             return context;
         }

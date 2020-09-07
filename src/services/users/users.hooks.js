@@ -1,7 +1,7 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
 const { hashPassword, protect } = require('@feathersjs/authentication-local').hooks;
 const { iff, isProvider, disallow, discardQuery } = require('feathers-hooks-common');
-const verifyHooks = require('authentication-local-management-at').hooks;
+const verifyHooks = require('feathers-authentication-management').hooks;
 const accountService = require('../auth-management/notifier');
 const streamkey = require('./streamkey');
 const email = require('./email');
@@ -36,7 +36,9 @@ module.exports = {
     patch: [
       async context => {
         if (typeof context.data.email !== "undefined") {
-          await accountService(context.app).notifier('resendVerifySignup', context.result);
+          if(!context.result.isVerified) {
+            await accountService(context.app).notifier('resendVerifySignup', context.result);
+          }
         }
       }
     ],
@@ -46,10 +48,10 @@ module.exports = {
   error: {
     all: [
       protect('password'),
-      /*debugging
+
       context => {
         console.error(`Error in '${context.path}' service method '${context.method}'`, context.error.stack);
-      }*/
+      }
     ],
     find: [],
     get: [],

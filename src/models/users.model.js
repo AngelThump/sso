@@ -50,9 +50,8 @@ module.exports = function (app) {
       allowNull: true
     },
     verifyChanges: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-      defaultValue: []
+      type: DataTypes.JSON,
+      allowNull: true
     },
     resetToken: {
       type: DataTypes.CHAR,

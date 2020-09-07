@@ -25,7 +25,6 @@ module.exports.sendResetPassword = function(app) {
                 errorMsg: ""
             })
         }).catch(e => {
-            console.error(e.message);
             return res.json({
                 error: true,
                 errorMsg: "something went wrong with auth management service."
@@ -73,7 +72,6 @@ module.exports.getUsername = function(app) {
                 html: `Hi, here is the username you requested: ${user.username}`
             })
             .catch(e => {
-                console.error(e.message);
                 return res.json({
                     error: true,
                     errorMsg: "something went wrong with email service."
@@ -117,7 +115,6 @@ module.exports.resetPassword = function(app) {
         }).then(() => {
             res.redirect('https://angelthump.com');
         }).catch(e => {
-            console.error(e.message);
             return res.json({
                 error: true,
                 errorMsg: "something went wrong with auth management service"
@@ -166,7 +163,6 @@ module.exports.changePassword = function(app) {
                 errorMsg: ""
             })
         }).catch(e => {
-            console.error(e.message);
             return res.json({
                 error: true,
                 errorMsg: "something went wrong with auth management"
@@ -219,7 +215,6 @@ module.exports.emailChange = function(app) {
                 errorMsg: ""
             })
         }).catch(e =>{
-            console.error(e.message);
             return res.json({
                 error: true,
                 errorMsg: "something went wrong with auth management"
@@ -243,10 +238,9 @@ module.exports.verifyEmailChange = function(app) {
         authManagement.create({ 
             action: 'verifySignupLong',
             value: req.params.hash
-        }).then(() => {
-            return res.render('success.ejs', {message: "Email changed!"});
+        }).then(() =>{
+            res.redirect('https://angelthump.com');
         }).catch(e =>{
-            console.error(e.message);
             return res.json({
                 error: true,
                 errorMsg: "something went wrong with auth management"
@@ -271,9 +265,8 @@ module.exports.verify = function(app) {
             action: 'verifySignupLong',
             value: req.params.hash
         }).then(() => {
-            return res.render('success.ejs', {message: "Email verified!"});
+            res.redirect('https://angelthump.com');
         }).catch(e =>{
-            console.error(e.message);
             return res.json({
                 error: true,
                 errorMsg: "something went wrong with auth management"
@@ -419,7 +412,6 @@ module.exports.verifyPatreon = function (app) {
         .then(data => {
             return data.patreon
         }).catch(e => {
-            console.error(e.message)
         })
 
         const patronData =
@@ -453,7 +445,7 @@ module.exports.verifyPatreon = function (app) {
             return res.json({error: true, errorMsg: "You are currently not a patron"});
         }
 
-        console.log(patronData);
+        //console.log(patronData);
 
         const amount = patronData.attributes.currently_entitled_amount_cents;
         const patron_status = patronData.attributes.patron_status.toLowerCase();

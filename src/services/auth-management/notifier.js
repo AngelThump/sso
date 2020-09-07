@@ -25,7 +25,7 @@ module.exports = function(app) {
                             from: "noreply@angelthump.com",
                             to: user.email,
                             subject: 'Verify your email',
-                            html: `Thank you for signing up ${user.username}! <br><br> <b>${user.verifyShortToken}</b> <br><br> Enter this code to verify your email 
+                            html: `Thank you for signing up ${user.display_name}! <br><br> <b>${user.verifyShortToken}</b> <br><br> Enter this code to verify your email 
                             or by clicking the link below!<br><br>${link}<br><br>
                             If the link does not load, please copy and paste the link into the address bar of your browser.`
                         }
@@ -45,7 +45,7 @@ module.exports = function(app) {
                             from: "noreply@angelthump.com",
                             to: user.email,
                             subject: 'Reset Password',
-                            html: `Hi, ${user.username} <br><br> To reset your password, please click the link below. <br><br>${link}<br><br> Please ignore this email if you did not request a password change!`
+                            html: `Hi, ${user.display_name} <br><br> To reset your password, please click the link below. <br><br>${link}<br><br> Please ignore this email if you did not request a password change!`
                         }
                         return sendEmail(email)
                     /*
@@ -54,7 +54,7 @@ module.exports = function(app) {
                             from: "noreply@angelthump.com",
                             to: user.email,
                             subject: 'Your password has changed',
-                            html: `Hi, ${user.username} <br><br> Your password was just reset.`
+                            html: `Hi, ${user.display_name} <br><br> Your password was just reset.`
                         }
                     return sendEmail(email)
                     case 'passwordChange':
@@ -62,16 +62,16 @@ module.exports = function(app) {
                                 from: "noreply@angelthump.com",
                                 to: user.email,
                                 subject: 'Your password was changed',
-                                html: `Hi, ${user.username} <br><br> Your password was just reset`
+                                html: `Hi, ${user.display_name} <br><br> Your password was just reset`
                             }
                         return sendEmail(email)*/
                     case 'identityChange':
-                        link = `https://sso.angelthump.com/user/verify/changes/${user.verifyToken}`;
+                        link = `https://sso.angelthump.com/user/change/email/${user.verifyToken}`;
                         email = {
                             from: "noreply@angelthump.com",
                             to: user.email,
-                            subject: 'Your email was changed. Please verify the changes',
-                            html: `Hi, ${user.username} <br><br> To change your email, please click the link below. <br><br> ${link} <br><br> Please ignore this email if you did not request to change your email`
+                            subject: 'Did you change your email? Please verify the changes!',
+                            html: `Hi, ${user.display_name} <br><br> If you requested to change your email, please click the link below. <br><br> ${link} <br><br> Please ignore this email if you did not request to change your email and change your password to a stronger one!`
                         }
                         return sendEmail(email)
                     default:

@@ -1,4 +1,4 @@
-const verifyHooks = require('authentication-local-management-at').hooks;
+const verifyHooks = require('feathers-authentication-management').hooks;
 
 module.exports.considerVerify = function() {
     return function(context) {

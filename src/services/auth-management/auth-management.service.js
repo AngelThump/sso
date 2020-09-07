@@ -1,6 +1,6 @@
 const hooks = require('./auth-management.hooks');
 const notifier = require('./notifier');
-const authManagement = require('authentication-local-management-at');
+const authManagement = require('feathers-authentication-management');
 
 module.exports = function (app) {
 
