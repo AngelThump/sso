@@ -4,7 +4,10 @@ const authManagement = require('feathers-authentication-management');
 
 module.exports = function (app) {
 
-  app.configure(authManagement(notifier(app)));
+  app.configure(authManagement( {
+    skipIsVerifiedCheck: true,  
+    notifier: notifier(app)
+  }));
 
   // Get our initialized service so that we can register hooks
   const service = app.service('authManagement');
