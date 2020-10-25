@@ -49,6 +49,7 @@ module.exports = function () { // eslint-disable-line no-unused-vars
                 }
             }
             context.dispatch = dispatch;
+            return context;
         }
     };
 };

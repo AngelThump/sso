@@ -32,14 +32,13 @@ module.exports = function (app) {
           };
           return sendEmail(email);
           /*case 'verifySignup':
-                        email = {
-                                from: "noreply@angelthump.com",
-                                to: user.email,
-                                subject: 'Thank you, your email has been verified',
-                                html: 'Your email has been verified. You have access to all of the site\'s functionality now!'
-                            }
-                        return sendEmail(email)*/
-          return;
+            email = {
+                    from: "noreply@angelthump.com",
+                    to: user.email,
+                    subject: 'Thank you, your email has been verified',
+                    html: 'Your email has been verified. You have access to all of the site\'s functionality now!'
+                }
+            return sendEmail(email)*/
         case "sendResetPwd":
           link = `https://sso.angelthump.com/user/reset/password/${user.resetToken}`;
           email = {
@@ -50,22 +49,22 @@ module.exports = function (app) {
           };
           return sendEmail(email);
         /*
-                    case 'resetPwd':
-                        email = {
-                            from: "noreply@angelthump.com",
-                            to: user.email,
-                            subject: 'Your password has changed',
-                            html: `Hi, ${user.display_name} <br><br> Your password was just reset.`
-                        }
-                    return sendEmail(email)
-                    case 'passwordChange':
-                        email = {
-                                from: "noreply@angelthump.com",
-                                to: user.email,
-                                subject: 'Your password was changed',
-                                html: `Hi, ${user.display_name} <br><br> Your password was just reset`
-                            }
-                        return sendEmail(email)*/
+          case 'resetPwd':
+              email = {
+                  from: "noreply@angelthump.com",
+                  to: user.email,
+                  subject: 'Your password has changed',
+                  html: `Hi, ${user.display_name} <br><br> Your password was just reset.`
+              }
+          return sendEmail(email)
+          case 'passwordChange':
+              email = {
+                      from: "noreply@angelthump.com",
+                      to: user.email,
+                      subject: 'Your password was changed',
+                      html: `Hi, ${user.display_name} <br><br> Your password was just reset`
+                  }
+              return sendEmail(email)*/
         case "identityChange":
           link = `https://sso.angelthump.com/user/change/email/${user.verifyToken}`;
           email = {
