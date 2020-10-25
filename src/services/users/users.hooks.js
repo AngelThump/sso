@@ -15,6 +15,7 @@ const streamkey = require("./streamkey");
 const dispatch = require("./dispatch");
 const uuid = require("./uuid");
 const insensitive = require("./insensitive");
+const isEmailChange = () => context => typeof context.data.email !== "undefined";
 
 module.exports = {
   before: {
@@ -42,7 +43,7 @@ module.exports = {
     update: [disallow()],
     patch: [
       authenticate("api-key"),
-      verifyHooks.addVerification()
+      iff(isEmailChange(), verifyHooks.addVerification())
     ],
     remove: [disallow()],
   },
