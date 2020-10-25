@@ -42,6 +42,9 @@ module.exports = function (app) {
   app.put('/v1/user/username', authenticate('jwt'), user.changeUsername(app))
   app.put('/v1/user/nsfw', authenticate('jwt'), user.changeNSFW(app))
   app.put('/v1/user/email', authenticate('jwt'), user.changeEmail(app))
+  app.patch('/v1/user/unlist', authenticate('jwt'), user.patchUnlist(app));
+  app.patch('/v1/user/password_protect', authenticate('jwt'), user.patchPasswordProtect(app));
+  app.patch('/v1/user/stream_password', authenticate('jwt'), user.patchStreamPassword(app));
 
   app.post('/v1/signup', [recaptcha.verify(app), signup.signup(app)]);
 
