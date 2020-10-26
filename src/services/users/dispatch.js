@@ -32,7 +32,7 @@ module.exports = function () { // eslint-disable-line no-unused-vars
                 if(context.params.user.id !== dispatch.id) {
                     keys = ['email', 'stream_key', 'stream_password', 'bans', 'resetExpires', 'patreon.id', 'twitch.id', 'patreon.access_token', 'patreon.refresh_token', 'twitch.access_token', 'twitch.refresh_token', 'verifyToken', 'verifyShortToken', 'resetToken', 'resetShortToken', 'verifyChanges', 'resetExpired', 'verifyExpires']
                 } else {
-                    keys = ['bans', 'resetExpires', 'patreon.id', 'twitch.id', 'patreon.access_token', 'patreon.refresh_token', 'twitch.access_token', 'twitch.refresh_token', 'verifyToken', 'verifyShortToken', 'resetToken', 'resetShortToken', 'verifyChanges', 'resetExpired', 'verifyExpires']
+                    keys = ['bans', 'resetExpires', 'twitch.access_token', 'twitch.refresh_token', 'verifyToken', 'verifyShortToken', 'resetToken', 'resetShortToken', 'verifyChanges', 'resetExpired', 'verifyExpires']
                 }
             } else {
                 keys = ['email', 'stream_key', 'stream_password', 'bans', 'resetExpires', 'patreon.id', 'twitch.id', 'patreon.access_token', 'patreon.refresh_token', 'twitch.access_token', 'twitch.refresh_token', 'verifyToken', 'verifyShortToken', 'resetToken', 'resetShortToken', 'verifyChanges', 'resetExpired', 'verifyExpires']
