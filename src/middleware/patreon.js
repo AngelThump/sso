@@ -69,7 +69,7 @@ module.exports.verifyPatreon = function (app) {
       newTier = 0;
     } else if (userTier.attributes.amount_cents === 500) {
       newTier = 1;
-    } else if (userTier.attributes.amount_cents === 1500) {
+    } else if (userTier.attributes.amount_cents === 1000) {
       newTier = 2;
     } else if (userTier.attributes.amount_cents === 3000) {
       newTier = 3;
