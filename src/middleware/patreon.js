@@ -46,6 +46,7 @@ module.exports.verifyPatreon = function (app) {
     if(!patronData) return res.status(404).json({error: true, message: "You are not a patron"});
 
     if(!patronData.data.relationships.currently_entitled_tiers) return res.status(404).json({error: true, message: "No patron tier."});
+    if(patronData.data.relationships.currently_entitled_tiers.data.length === 0) return res.status(404).json({error: true, message: "No patron tier."});
 
     //get tier id then get tier data?
     const tier_id = patronData.data.relationships.currently_entitled_tiers.data[0].id;
