@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const util = require("util");
 const readFile = util.promisify(fs.readFile);
-let patreon = require('../../config/patreon.json');
+let patreon = require("../../config/patreon.json");
 
 const formUrlEncoded = (x) =>
   Object.keys(x).reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, "");
@@ -96,8 +96,10 @@ module.exports.verifyPatreon = function (app) {
       newTier = 1;
     } else if (userTier.attributes.amount_cents === 1000) {
       newTier = 2;
-    } else if (userTier.attributes.amount_cents === 3000) {
+    } else if (userTier.attributes.amount_cents === 1500) {
       newTier = 3;
+    } else if (userTier.attributes.amount_cents === 3000) {
+      newTier = 4;
     }
 
     //don't update if patron and same tier

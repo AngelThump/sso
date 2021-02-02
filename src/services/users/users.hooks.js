@@ -6,7 +6,6 @@ const {
 } = require("@feathersjs/authentication-local").hooks;
 const {
   iff,
-  iffElse,
   isProvider,
   disallow,
   discardQuery,
@@ -70,8 +69,9 @@ module.exports = {
         await accountService(context.app)("resendVerifySignup", context.result);
       },
       verifyHooks.removeVerification(),
+      iff(isProvider("external"), dispatch())
     ],
-    update: [],
+    update: [disallow()],
     patch: [
       async (context) => {
         if (typeof context.data.email !== "undefined") {
@@ -84,8 +84,9 @@ module.exports = {
           }
         }
       },
+      dispatch.onlyId()
     ],
-    remove: [],
+    remove: [disallow()],
   },
 
   error: {
