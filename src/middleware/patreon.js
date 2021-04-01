@@ -162,7 +162,6 @@ const getTiers = async () => {
     })
     .catch((e) => {
       if (!e.response) return console.error(e);
-      console.log(e.response.data);
       if (e.response.data.errors[0].code !== 4) {
         return console.error(e.response.data);
       }
@@ -205,11 +204,8 @@ const getMembershipId = async (access_token) => {
       }
     )
     .then((response) => {
-      if (
-        !response.data.included &&
-        typeof response.data.included[Symbol.iterator] !== "function"
-      )
-        return;
+      if (!response.data.included) return;
+      if (typeof response.data.included[Symbol.iterator] !== "function") return;
       for (const included of response.data.included) {
         if (!included.relationships) break;
         if (patreon.campaignID === included.relationships.campaign.data.id) {
@@ -282,7 +278,6 @@ const getPatronData = async (patronId) => {
     })
     .catch((e) => {
       if (!e.response) return console.error(e);
-      console.log(e.response.data);
       if (e.response.data.errors[0].code !== 4) {
         return console.error(e.response.data);
       }
