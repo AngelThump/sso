@@ -37,6 +37,7 @@ module.exports = function (app) {
   app.delete('/v1/user/profile-logo', authenticate('jwt'), user.deleteProfileLogo(app))
   app.delete('/v1/user/offline-banner', authenticate('jwt'), user.deleteOfflineBanner(app))
   app.delete('/v1/user/patreon', authenticate('jwt'), patreon.deletePatreon(app))
+  app.delete('/v1/user/twitch', authenticate('jwt'), user.deleteTwitch(app))
   app.put('/v1/user/stream-key', authenticate('jwt'), user.resetStreamKey(app))
   app.put('/v1/user/display-name', authenticate('jwt'), user.changeDisplayName(app))
   app.put('/v1/user/username', authenticate('jwt'), user.changeUsername(app))
