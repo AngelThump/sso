@@ -23,6 +23,7 @@ const rawBodySaver = require("./middleware/rawbody");
 const sequelize = require("./sequelize");
 
 const app = express(feathers());
+app.set("trust proxy", 1);
 
 // Load app configuration
 app.configure(configuration());
@@ -33,7 +34,12 @@ app.use(
     hsts: false,
   })
 );
-app.use(cors());
+app.use(
+  cors({
+    origin: [`/\.${app.get("cors").domain}\.${app.get("cors").extension}$/`],
+    credentials: true,
+  })
+);
 app.use(compress());
 app.use(amazonUtil.overrideContentType());
 
