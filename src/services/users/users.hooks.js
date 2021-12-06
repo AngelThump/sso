@@ -1,39 +1,19 @@
 const { authenticate } = require("@feathersjs/authentication").hooks;
 const { setField } = require("feathers-authentication-hooks");
-const {
-  hashPassword,
-  protect,
-} = require("@feathersjs/authentication-local").hooks;
-const {
-  iff,
-  isProvider,
-  disallow,
-  discardQuery,
-} = require("feathers-hooks-common");
+const { hashPassword, protect } = require("@feathersjs/authentication-local").hooks;
+const { iff, isProvider, disallow, discardQuery } = require("feathers-hooks-common");
 const verifyHooks = require("feathers-authentication-management").hooks;
 const accountService = require("../auth-management/notifier");
 const streamkey = require("./streamkey");
 const dispatch = require("./dispatch");
 const uuid = require("./uuid");
 const insensitive = require("./insensitive");
-const isEmailChange = () => (context) =>
-  typeof context.data.email !== "undefined";
+const isEmailChange = () => (context) => typeof context.data.email !== "undefined";
 const params = () => (context) => typeof context.params.user !== "undefined";
 
 module.exports = {
   before: {
-    all: [
-      iff(
-        isProvider("external"),
-        discardQuery(
-          "password",
-          "title",
-          "stream_password",
-          "patreon",
-          "twitch"
-        )
-      ),
-    ],
+    all: [iff(isProvider("external"), discardQuery("password", "title", "stream_password", "patreon", "twitch"))],
     find: [authenticate("api-key"), insensitive()],
     get: [
       authenticate("jwt", "api-key"),
@@ -45,18 +25,9 @@ module.exports = {
         })
       ),
     ],
-    create: [
-      disallow("external"),
-      uuid.create(),
-      hashPassword("password"),
-      streamkey.create(),
-      verifyHooks.addVerification(),
-    ],
+    create: [disallow("external"), uuid.create(), hashPassword("password"), streamkey.create(), verifyHooks.addVerification()],
     update: [disallow()],
-    patch: [
-      authenticate("api-key"),
-      iff(isEmailChange(), verifyHooks.addVerification()),
-    ],
+    patch: [authenticate("api-key"), iff(isEmailChange(), verifyHooks.addVerification())],
     remove: [disallow()],
   },
 
@@ -69,37 +40,25 @@ module.exports = {
         await accountService(context.app)("resendVerifySignup", context.result);
       },
       verifyHooks.removeVerification(),
-      iff(isProvider("external"), dispatch())
+      iff(isProvider("external"), dispatch()),
     ],
     update: [disallow()],
     patch: [
       async (context) => {
         if (typeof context.data.email !== "undefined") {
           if (!context.result.isVerified) {
-            await accountService(context.app)(
-              "resendVerifySignup",
-              context.result
-            );
+            await accountService(context.app)("resendVerifySignup", context.result);
             verifyHooks.removeVerification();
           }
         }
       },
-      dispatch.onlyId()
+      dispatch.onlyId(),
     ],
     remove: [disallow()],
   },
 
   error: {
-    all: [
-      protect("password"),
-
-      (context) => {
-        console.error(
-          `Error in '${context.path}' service method '${context.method}'`,
-          context.error.stack
-        );
-      },
-    ],
+    all: [],
     find: [],
     get: [],
     create: [],
