@@ -1,18 +1,36 @@
 const recaptcha = require("./recaptcha");
 const sns = require("./sns");
 const { login, logout } = require("./auth");
-const redis = require("redis");
 const { authenticate } = require("@feathersjs/express");
 const validation = require("./validation");
 const user = require("./user");
 const patreon = require("./patreon");
 const session = require("express-session");
 const RedisStore = require("connect-redis")(session);
+const { createClient } = require("redis");
 
 module.exports = function (app) {
-  const redisConf = app.get("authentication").session.redis;
-  const client = redis.createClient(redisConf.useUnixSocket ? { path: redisConf.unix, password: redisConf.password } : { host: redisConf.hostname, password: redisConf.password });
-  const limiter = require("express-limiter")(app, client);
+  const redisConf = app.get("authentication").session.redis,
+    redisClient = createClient(
+      redisConf.useUnixSocket
+        ? {
+            socket: {
+              path: redisConf.unix,
+            },
+            password: redisConf.password,
+            legacyMode: true,
+          }
+        : {
+            socket: {
+              host: redisConf.hostname,
+            },
+            password: redisConf.password,
+            legacyMode: true,
+          }
+    );
+  redisClient.connect().catch((e) => console.error(e));
+
+  const limiter = require("express-limiter")(app, redisClient);
   limiter({
     path: "*",
     method: "post",
@@ -26,7 +44,7 @@ module.exports = function (app) {
 
   app.use(
     session({
-      store: new RedisStore({ client: client }),
+      store: new RedisStore({ client: redisClient }),
       secret: app.get("authentication").secret,
       ...app.get("authentication").session,
     })

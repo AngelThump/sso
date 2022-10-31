@@ -5,7 +5,7 @@ const hostname = app.get("host");
 const port = app.get("port");
 const server = app.listen(port, "localhost");
 
-process.on("unhandledRejection", (reason, p) => logger.error("Unhandled Rejection at: Promise ", p, reason));
+process.on("unhandledRejection", (reason, p) => logger.error(reason));
 
 server.on("listening", () => {
   if (process.env.NODE_ENV === "production") {
