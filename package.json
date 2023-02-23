@@ -69,7 +69,7 @@
     "request-ip": "^3.3.0",
     "request-promise": "^4.2.6",
     "s3-blob-store": "^4.1.1",
-    "sequelize": "^6.25.3",
+    "sequelize": "^6.28.2",
     "serve-favicon": "^2.5.0",
     "sns-validator": "^0.3.5",
     "uuid": "^9.0.0",
