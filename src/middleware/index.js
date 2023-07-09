@@ -40,6 +40,9 @@ module.exports = function (app) {
     onRateLimited: (req, res, next) => {
       next({ message: "Rate limit exceeded", code: 429 });
     },
+    whitelist: function (req) {
+      return req.headers["rate-limit-bypass"] === app.get("authentication").RATE_LIMIT_BYPASS;
+    },
   });
 
   app.use(
