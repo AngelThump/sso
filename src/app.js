@@ -36,10 +36,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: [
-      `https://${app.get("cors").domain}.${app.get("cors").extension}`,
-      new RegExp(`\.${app.get("cors").domain}\.${app.get("cors").extension}$`),
-    ],
+    origin: app.get("origin"),
     credentials: true,
   })
 );
