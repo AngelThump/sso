@@ -36,7 +36,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: app.get("origin"),
+    origin: app.get("cors").origin,
     credentials: true,
   })
 );
@@ -55,7 +55,8 @@ app.configure(express.rest());
 app.configure(
   socketio({
     cors: {
-      origin: '*'
+      origin: app.get("cors").origin,
+      credentials: true,
     },
   })
 );
