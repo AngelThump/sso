@@ -36,7 +36,10 @@ app.use(
 );
 app.use(
   cors({
-    origin: [`https://${app.get("cors").domain}.${app.get("cors").extension}`, new RegExp(`\.${app.get("cors").domain}\.${app.get("cors").extension}$`)],
+    origin: [
+      `https://${app.get("cors").domain}.${app.get("cors").extension}`,
+      new RegExp(`\.${app.get("cors").domain}\.${app.get("cors").extension}$`),
+    ],
     credentials: true,
   })
 );
@@ -66,7 +69,7 @@ app.configure(channels);
 
 // Configure a middleware for 404s and the error handler
 app.use(function (req, res, next) {
-  res.status(404).send("Sorry can't find that!");
+  res.status(404).json({ error: true, msg: "Not found" });
 });
 app.use(express.errorHandler({ logger }));
 

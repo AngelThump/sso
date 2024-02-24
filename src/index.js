@@ -1,16 +1,12 @@
-/* eslint-disable no-console */
 const logger = require("./logger");
 const app = require("./app");
-const hostname = app.get("host");
 const port = app.get("port");
-const server = app.listen(port, "localhost");
+const host = app.get("host");
 
-process.on("unhandledRejection", (reason, p) => logger.error(reason));
+process.on("unhandledRejection", (reason) =>
+  logger.error("Unhandled Rejection %O", reason)
+);
 
-server.on("listening", () => {
-  if (process.env.NODE_ENV === "production") {
-    logger.info("Feathers application production build started on http://%s:%d", hostname, port);
-  } else {
-    logger.info("Feathers application development build started on http://%s:%d", hostname, port);
-  }
+app.listen(port).then(() => {
+  logger.info(`Feathers app listening on http://${host}:${port}`);
 });

@@ -1,11 +1,14 @@
-const { AuthenticationService, JWTStrategy } = require("@feathersjs/authentication");
+const {
+  AuthenticationService,
+  JWTStrategy,
+} = require("@feathersjs/authentication");
 const { LocalStrategy } = require("@feathersjs/authentication-local");
-const { expressOauth, OAuthStrategy } = require("@feathersjs/authentication-oauth");
+const { oauth, OAuthStrategy } = require("@feathersjs/authentication-oauth");
 const { ApiKeyStrategy } = require("@thesinding/authentication-api-key");
 const axios = require("axios");
 const redis = require("redis");
 const session = require("express-session");
-const RedisStore = require("connect-redis")(session);
+const RedisStore = require("connect-redis").default;
 
 class PatreonStrategy extends OAuthStrategy {
   constructor(app) {
@@ -15,11 +18,14 @@ class PatreonStrategy extends OAuthStrategy {
   async getProfile(authResult) {
     const accessToken = authResult.access_token;
 
-    let { data } = await axios.get("https://www.patreon.com/api/oauth2/v2/identity", {
-      headers: {
-        authorization: `Bearer ${accessToken}`,
-      },
-    });
+    let { data } = await axios.get(
+      "https://www.patreon.com/api/oauth2/v2/identity",
+      {
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     data.access_token = authResult.access_token;
     data.refresh_token = authResult.refresh_token;
@@ -104,7 +110,11 @@ class TwitchStrategy extends OAuthStrategy {
 
 module.exports = (app) => {
   const redisConf = app.get("authentication").session.redis;
-  const redisClient = redis.createClient(redisConf.useUnixSocket ? { path: redisConf.unix, password: redisConf.password } : { host: redisConf.hostname, password: redisConf.password });
+  const redisClient = redis.createClient(
+    redisConf.useUnixSocket
+      ? { path: redisConf.unix, password: redisConf.password }
+      : { host: redisConf.hostname, password: redisConf.password }
+  );
   const authentication = new AuthenticationService(app);
 
   authentication.register("jwt", new JWTStrategy());
@@ -115,7 +125,7 @@ module.exports = (app) => {
 
   app.use("/authentication", authentication);
   app.configure(
-    expressOauth({
+    oauth({
       expressSession: session({
         store: new RedisStore({ client: redisClient }),
         secret: app.get("sessionSecret"),

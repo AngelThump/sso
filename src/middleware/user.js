@@ -312,7 +312,8 @@ module.exports.changeDisplayName = function (app) {
     if (user.username !== req.body.display_name.toLowerCase()) {
       return res.json({
         error: true,
-        errorMsg: "Cannot change display name that differs from your username. You can only change the capitalization",
+        errorMsg:
+          "Cannot change display name that differs from your username. You can only change the capitalization",
       });
     }
 
@@ -359,9 +360,11 @@ module.exports.verifyPassword = function (app) {
         console.error(e);
       });
 
-    const result = await bcrypt.compare(req.body.password, userPassword).catch((e) => {
-      console.error(e);
-    });
+    const result = await bcrypt
+      .compare(req.body.password, userPassword)
+      .catch((e) => {
+        console.error(e);
+      });
 
     if (result) {
       return res.json({
@@ -440,7 +443,7 @@ module.exports.changeEmail = function (app) {
   };
 };
 
-const AWS = require("aws-sdk");
+const AWS = require("@aws-sdk/client-s3");
 
 module.exports.deleteProfileLogo = function (app) {
   return async function (req, res, next) {
@@ -455,13 +458,18 @@ module.exports.deleteProfileLogo = function (app) {
       });
     }
 
-    const id = profile_logo_url.substring(profile_logo_url.lastIndexOf("/") + 1, profile_logo_url.length);
+    const id = profile_logo_url.substring(
+      profile_logo_url.lastIndexOf("/") + 1,
+      profile_logo_url.length
+    );
 
-    const spacesEndpoint = new AWS.Endpoint("nyc3.digitaloceanspaces.com");
     const s3 = new AWS.S3({
-      accessKeyId: app.get("doSpacesAccessKey"),
-      secretAccessKey: app.get("doSpacesSecretKey"),
-      endpoint: spacesEndpoint,
+      forcePathStyle: false,
+      endpoint: "https://nyc3.digitaloceanspaces.com",
+      credentials: {
+        accessKeyId: app.get("doSpacesAccessKey"),
+        secretAccessKey: app.get("doSpacesSecretKey"),
+      },
     });
 
     const params = { Bucket: "images-angelthump/profile-logos", Key: id };
@@ -471,7 +479,8 @@ module.exports.deleteProfileLogo = function (app) {
 
     users
       .patch(req.user.id, {
-        profile_logo_url: "https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_profile_picture.png",
+        profile_logo_url:
+          "https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_profile_picture.png",
       })
       .then(() => {
         return res.json({
@@ -502,13 +511,18 @@ module.exports.deleteOfflineBanner = function (app) {
       });
     }
 
-    const id = offline_banner_url.substring(offline_banner_url.lastIndexOf("/") + 1, offline_banner_url.length);
+    const id = offline_banner_url.substring(
+      offline_banner_url.lastIndexOf("/") + 1,
+      offline_banner_url.length
+    );
 
-    const spacesEndpoint = new AWS.Endpoint("nyc3.digitaloceanspaces.com");
     const s3 = new AWS.S3({
-      accessKeyId: app.get("doSpacesAccessKey"),
-      secretAccessKey: app.get("doSpacesSecretKey"),
-      endpoint: spacesEndpoint,
+      forcePathStyle: false,
+      endpoint: "https://nyc3.digitaloceanspaces.com",
+      credentials: {
+        accessKeyId: app.get("doSpacesAccessKey"),
+        secretAccessKey: app.get("doSpacesSecretKey"),
+      },
     });
 
     const params = { Bucket: "images-angelthump/offline-banners", Key: id };
@@ -518,7 +532,8 @@ module.exports.deleteOfflineBanner = function (app) {
 
     users
       .patch(req.user.id, {
-        offline_banner_url: "https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_offline_banner.png",
+        offline_banner_url:
+          "https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_offline_banner.png",
       })
       .then(() => {
         return res.json({
@@ -637,7 +652,8 @@ module.exports.patchPasswordProtect = function (app) {
         console.error(e);
         return res.json({
           error: true,
-          errorMsg: "something went wrong trying to patch password protect in users service",
+          errorMsg:
+            "something went wrong trying to patch password protect in users service",
         });
       });
   };
@@ -678,7 +694,8 @@ module.exports.patchStreamPassword = function (app) {
         console.error(e);
         return res.json({
           error: true,
-          errorMsg: "something went wrong trying to patch stream password in users service",
+          errorMsg:
+            "something went wrong trying to patch stream password in users service",
         });
       });
   };
@@ -717,7 +734,8 @@ module.exports.patchUnlist = function (app) {
         console.error(e);
         return res.json({
           error: true,
-          errorMsg: "something went wrong trying to patch unlist in users service",
+          errorMsg:
+            "something went wrong trying to patch unlist in users service",
         });
       });
   };
