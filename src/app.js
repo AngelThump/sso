@@ -21,12 +21,14 @@ const amazonUtil = require("./middleware/amazon-util");
 const rawBodySaver = require("./middleware/rawbody");
 
 const sequelize = require("./sequelize");
+const redis = require("./redis");
 
 const app = express(feathers());
 app.set("trust proxy", 1);
 
 // Load app configuration
 app.configure(configuration());
+app.configure(redis);
 // Enable security, CORS, compression, favicon and body parsing
 app.use(
   helmet({
