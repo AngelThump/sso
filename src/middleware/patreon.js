@@ -10,10 +10,10 @@ const formUrlEncoded = (x) =>
 
 module.exports.verifyPatreon = function (app) {
   return async function (req, res, next) {
-    if (!req.user)
+    if (!req.feathers.user)
       return res.status(500).json({ error: true, message: "No user" });
 
-    const user = req.user;
+    const user = req.feathers.user;
 
     if (!user.patreon)
       return res
@@ -364,7 +364,7 @@ const checkCreatorToken = async () => {
 
 module.exports.deletePatreon = function (app) {
   return async function (req, res, next) {
-    const user = req.user;
+    const user = req.feathers.user;
     const users = app.service("users");
 
     users

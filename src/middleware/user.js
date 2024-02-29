@@ -300,7 +300,7 @@ module.exports.changeDisplayName = function (app) {
       });
     }
 
-    const user = req.user;
+    const user = req.feathers.user;
 
     if (user.display_name === req.body.display_name) {
       return res.json({
@@ -352,7 +352,7 @@ module.exports.verifyPassword = function (app) {
 
     const userPassword = await app
       .service("users")
-      .get(req.user.id)
+      .get(req.feathers.user.id)
       .then((user) => {
         return user.password;
       })
@@ -392,7 +392,7 @@ module.exports.changeUsername = function (app) {
     const users = app.service("users");
 
     users
-      .patch(req.user.id, {
+      .patch(req.feathers.user.id, {
         username: req.body.username,
         display_name: req.body.username,
       })
@@ -424,7 +424,7 @@ module.exports.changeEmail = function (app) {
     const users = app.service("users");
 
     users
-      .patch(req.user.id, {
+      .patch(req.feathers.user.id, {
         email: req.body.email,
       })
       .then(() => {
@@ -449,7 +449,7 @@ module.exports.deleteProfileLogo = function (app) {
   return async function (req, res, next) {
     const users = app.service("users");
 
-    const profile_logo_url = req.user.profile_logo_url;
+    const profile_logo_url = req.feathers.user.profile_logo_url;
 
     if (!profile_logo_url) {
       return res.json({
@@ -478,7 +478,7 @@ module.exports.deleteProfileLogo = function (app) {
     });
 
     users
-      .patch(req.user.id, {
+      .patch(req.feathers.user.id, {
         profile_logo_url:
           "https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_profile_picture.png",
       })
@@ -502,7 +502,7 @@ module.exports.deleteOfflineBanner = function (app) {
   return async function (req, res, next) {
     const users = app.service("users");
 
-    const offline_banner_url = req.user.offline_banner_url;
+    const offline_banner_url = req.feathers.user.offline_banner_url;
 
     if (!offline_banner_url) {
       return res.json({
@@ -531,7 +531,7 @@ module.exports.deleteOfflineBanner = function (app) {
     });
 
     users
-      .patch(req.user.id, {
+      .patch(req.feathers.user.id, {
         offline_banner_url:
           "https://images-angelthump.nyc3.cdn.digitaloceanspaces.com/default_offline_banner.png",
       })
@@ -562,7 +562,7 @@ const keyGen = (email) => {
 
 module.exports.resetStreamKey = function (app) {
   return async function (req, res, next) {
-    const user = req.user;
+    const user = req.feathers.user;
     const new_stream_key = keyGen(user.email);
     const users = app.service("users");
 
@@ -595,7 +595,7 @@ module.exports.changeNSFW = function (app) {
       });
     }
 
-    const user = req.user;
+    const user = req.feathers.user;
     const users = app.service("users");
 
     users
@@ -627,14 +627,17 @@ module.exports.patchPasswordProtect = function (app) {
       });
     }
 
-    const user = req.user;
+    const user = req.feathers.user;
 
-    if (!user.patreon.isPatron && user.patreon.tier < 2) {
+    if (
+      !user.patreon.isPatron &&
+      user.patreon.tier < 2 &&
+      !user.type === "admin"
+    )
       return res.json({
         error: true,
         errorMsg: "not a patron",
       });
-    }
 
     app
       .service("users")
@@ -668,11 +671,13 @@ module.exports.patchStreamPassword = function (app) {
       });
     }
 
-    //consider one way hash? seems dumb since its suppose to be shared.
+    const user = req.feathers.user;
 
-    const user = req.user;
-
-    if (!user.patreon.isPatron && user.patreon.tier < 2) {
+    if (
+      !user.patreon.isPatron &&
+      user.patreon.tier < 2 &&
+      !user.type === "admin"
+    ) {
       return res.json({
         error: true,
         errorMsg: "not a patron",
@@ -710,9 +715,13 @@ module.exports.patchUnlist = function (app) {
       });
     }
 
-    const user = req.user;
+    const user = req.feathers.user;
 
-    if (!user.patreon.isPatron && user.patreon.tier < 2) {
+    if (
+      !user.patreon.isPatron &&
+      user.patreon.tier < 2 &&
+      !user.type === "admin"
+    ) {
       return res.json({
         error: true,
         errorMsg: "not a patron",
@@ -743,7 +752,7 @@ module.exports.patchUnlist = function (app) {
 
 module.exports.deleteTwitch = function (app) {
   return async function (req, res, next) {
-    const user = req.user;
+    const user = req.feathers.user;
     const users = app.service("users");
 
     users
