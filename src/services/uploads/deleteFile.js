@@ -15,28 +15,28 @@ module.exports = function () {
     const path = context.path;
     if (path === "uploads/profile") {
       const url = context.params.user.profile_logo_url;
-      if (!url) {
-        return;
-      }
+      if (!url) return;
       const id = url.substring(url.lastIndexOf("/") + 1, url.length);
 
-      const params = { Bucket: "images-angelthump/profile-logos", Key: id };
+      const params = {
+        Bucket: "images-angelthump",
+        Key: `profile-logos/${id}`,
+      };
       s3.deleteObject(params, function (err, data) {
-        if (err) return console.log(err, err.stack);
+        if (err) return console.error(err, err.stack);
       });
     } else if (path === "uploads/offline") {
       const url = context.params.user.offline_banner_url;
-      if (!url) {
-        return;
-      }
+      if (!url) return;
       const id = url.substring(url.lastIndexOf("/") + 1, url.length);
-      const params = { Bucket: "images-angelthump/offline-banners", Key: id };
+      const params = {
+        Bucket: "images-angelthump",
+        Key: `offline-banners/${id}`,
+      };
       s3.deleteObject(params, function (err, data) {
-        if (err) return console.log(err, err.stack);
+        if (err) return console.error(err, err.stack);
       });
     }
-
-    context.params.user.profile;
 
     return context;
   };

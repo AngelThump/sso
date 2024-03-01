@@ -472,7 +472,7 @@ module.exports.deleteProfileLogo = function (app) {
       },
     });
 
-    const params = { Bucket: "images-angelthump/profile-logos", Key: id };
+    const params = { Bucket: "images-angelthump", Key: `profile-logos/${id}` };
     s3.deleteObject(params, function (err, data) {
       if (err) return console.error(err, err.stack);
     });
@@ -525,7 +525,10 @@ module.exports.deleteOfflineBanner = function (app) {
       },
     });
 
-    const params = { Bucket: "images-angelthump/offline-banners", Key: id };
+    const params = {
+      Bucket: "images-angelthump",
+      Key: `offline-banners/${id}`,
+    };
     s3.deleteObject(params, function (err, data) {
       if (err) return console.error(err, err.stack);
     });
