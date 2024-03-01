@@ -4,7 +4,7 @@ const hooks = require("./uploads.hooks");
 const BlobService = require("feathers-blob");
 const multer = require("multer");
 const store = require("s3-blob-store");
-const AWS = require("@aws-sdk/client-s3");
+const AWS = require("aws-sdk");
 
 module.exports = function (app) {
   const multipartMiddleware = multer();

@@ -32,7 +32,6 @@
     "mocha": "mocha test/ --recursive --exit"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.521.0",
     "@feathersjs/authentication": "^5.0.22",
     "@feathersjs/authentication-local": "^5.0.22",
     "@feathersjs/authentication-oauth": "^5.0.22",
@@ -43,6 +42,7 @@
     "@feathersjs/socketio": "^5.0.22",
     "@feathersjs/transport-commons": "^5.0.22",
     "@thesinding/authentication-api-key": "0.0.7",
+    "aws-sdk": "^2.1569.0",
     "axios": "^1.6.7",
     "body-parser": "^1.20.2",
     "compression": "^1.7.4",

@@ -1,4 +1,4 @@
-const AWS = require("@aws-sdk/client-s3");
+const AWS = require("aws-sdk");
 
 module.exports = function () {
   return async function (context) {

@@ -1,3 +1,5 @@
+const AWS = require("aws-sdk");
+
 module.exports.sendResetPassword = function (app) {
   return function (req, res, next) {
     if (!req.recaptchaResponse) {
@@ -442,8 +444,6 @@ module.exports.changeEmail = function (app) {
       });
   };
 };
-
-const AWS = require("@aws-sdk/client-s3");
 
 module.exports.deleteProfileLogo = function (app) {
   return async function (req, res, next) {
