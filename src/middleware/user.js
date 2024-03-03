@@ -632,14 +632,15 @@ module.exports.patchPasswordProtect = function (app) {
 
     const user = req.feathers.user;
 
-    if (
-      !user.patreon.isPatron &&
-      user.patreon.tier < 2 &&
-      !user.type === "admin"
-    )
+    const privilegedUser =
+      (user.patreon && user.patreon.isPatron && user.patreon.tier >= 2) ||
+      user.type === "admin" ||
+      user.angel;
+
+    if (!privilegedUser)
       return res.json({
         error: true,
-        errorMsg: "not a patron",
+        errorMsg: "Not allowed",
       });
 
     app
@@ -676,16 +677,16 @@ module.exports.patchStreamPassword = function (app) {
 
     const user = req.feathers.user;
 
-    if (
-      !user.patreon.isPatron &&
-      user.patreon.tier < 2 &&
-      !user.type === "admin"
-    ) {
+    const privilegedUser =
+      (user.patreon && user.patreon.isPatron && user.patreon.tier >= 2) ||
+      user.type === "admin" ||
+      user.angel;
+
+    if (!privilegedUser)
       return res.json({
         error: true,
-        errorMsg: "not a patron",
+        errorMsg: "Not allowed",
       });
-    }
 
     app
       .service("users")
@@ -720,16 +721,16 @@ module.exports.patchUnlist = function (app) {
 
     const user = req.feathers.user;
 
-    if (
-      !user.patreon.isPatron &&
-      user.patreon.tier < 2 &&
-      !user.type === "admin"
-    ) {
+    const privilegedUser =
+      (user.patreon && user.patreon.isPatron && user.patreon.tier >= 2) ||
+      user.type === "admin" ||
+      user.angel;
+
+    if (!privilegedUser)
       return res.json({
         error: true,
-        errorMsg: "not a patron",
+        errorMsg: "Not allowed",
       });
-    }
 
     app
       .service("users")
