@@ -1,8 +1,4 @@
-const {
-  AuthenticationService,
-  JWTStrategy,
-  AuthenticationBaseStrategy,
-} = require("@feathersjs/authentication");
+const { AuthenticationService, JWTStrategy, AuthenticationBaseStrategy } = require("@feathersjs/authentication");
 const { LocalStrategy } = require("@feathersjs/authentication-local");
 const { oauth, OAuthStrategy } = require("@feathersjs/authentication-oauth");
 const axios = require("axios");
@@ -17,14 +13,11 @@ class PatreonStrategy extends OAuthStrategy {
   async getProfile(res, params) {
     const accessToken = res.access_token;
 
-    let { data } = await axios.get(
-      "https://www.patreon.com/api/oauth2/v2/identity",
-      {
-        headers: {
-          authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    let { data } = await axios.get("https://www.patreon.com/api/oauth2/v2/identity", {
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+      },
+    });
 
     data.access_token = res.access_token;
     data.refresh_token = res.refresh_token;
@@ -32,7 +25,7 @@ class PatreonStrategy extends OAuthStrategy {
     return data;
   }
 
-  async getEntityData(profile) {
+  getEntityData(profile) {
     return {
       patreon: {
         id: profile.data.id,
@@ -62,7 +55,7 @@ class TwitchStrategy extends OAuthStrategy {
     super(app);
   }
 
-  async getEntityData(profile) {
+  getEntityData(profile) {
     const user = profile && profile.data[0];
     if (!user) throw new Error("No User Found");
     return {
@@ -73,7 +66,7 @@ class TwitchStrategy extends OAuthStrategy {
     };
   }
 
-  async getEntityQuery(profile, params) {
+  getEntityQuery(profile) {
     const user = profile && profile.data[0];
     if (!user) throw new Error("No User Found");
     const query = { "twitch.id": user.id };
@@ -83,7 +76,7 @@ class TwitchStrategy extends OAuthStrategy {
     };
   }
 
-  async getRedirect(authResult, params) {
+  async getRedirect(data) {
     return `${this.app.get("authentication").oauth.redirect}`;
   }
 }
@@ -106,7 +99,7 @@ module.exports = (app) => {
         }),
         secret: app.get("sessionSecret"),
         resave: false,
-        saveUninitialized: false,
+        saveUninitialized: true,
       }),
     })
   );

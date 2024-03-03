@@ -3,23 +3,14 @@ const { RateLimiterRedis } = require("rate-limiter-flexible");
 
 module.exports = async function (app) {
   const redisConf = app.get("authentication").redis,
-    redisClient = createClient(
-      redisConf.useUnixSocket
-        ? {
-            socket: {
-              path: redisConf.unix,
-            },
-            password: redisConf.password,
-            enable_offline_queue: false,
-          }
-        : {
-            socket: {
-              host: redisConf.hostname,
-            },
-            password: redisConf.password,
-            enable_offline_queue: false,
-          }
-    );
+    redisClient = createClient({
+      socket: {
+        path: redisConf.useUnixSocket ? redisConf.unix : null,
+        host: redisConf.hostname,
+      },
+      password: redisConf.password,
+      enable_offline_queue: false,
+    });
 
   redisClient.connect().catch((e) => console.error(e));
 

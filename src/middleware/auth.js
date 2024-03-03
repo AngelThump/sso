@@ -8,10 +8,11 @@ module.exports.login = (app) => {
         password,
       });
 
-      req.session.authentication = {
-        strategy: "jwt",
-        accessToken,
-      };
+      if (req.session)
+        req.session.authentication = {
+          strategy: "jwt",
+          accessToken,
+        };
 
       res.status(200).json({ accessToken: accessToken });
     } catch (error) {
@@ -22,7 +23,7 @@ module.exports.login = (app) => {
 
 module.exports.logout = (app) => {
   return async (req, res, next) => {
-    delete req.session.authentication;
+    if (req.session) delete req.session.authentication;
     res.status(200).end();
   };
 };
