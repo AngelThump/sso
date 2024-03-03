@@ -101,11 +101,13 @@ module.exports = function (app) {
     },
     stream_password: {
       type: DataTypes.TEXT,
-      allowNull: true
+      allowNull: false,
+      defaultValue: ""
     },
     password_protect: {
       type: DataTypes.BOOLEAN,
-      allowNull: true
+      allowNull: false,
+      defaultValue: false
     },
     nsfw: {
       type: DataTypes.BOOLEAN,
