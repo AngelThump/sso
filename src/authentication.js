@@ -1,4 +1,8 @@
-const { AuthenticationService, JWTStrategy, AuthenticationBaseStrategy } = require("@feathersjs/authentication");
+const {
+  AuthenticationService,
+  JWTStrategy,
+  AuthenticationBaseStrategy,
+} = require("@feathersjs/authentication");
 const { LocalStrategy } = require("@feathersjs/authentication-local");
 const { oauth, OAuthStrategy } = require("@feathersjs/authentication-oauth");
 const axios = require("axios");
@@ -13,11 +17,14 @@ class PatreonStrategy extends OAuthStrategy {
   async getProfile(res, params) {
     const accessToken = res.access_token;
 
-    let { data } = await axios.get("https://www.patreon.com/api/oauth2/v2/identity", {
-      headers: {
-        authorization: `Bearer ${accessToken}`,
-      },
-    });
+    let { data } = await axios.get(
+      "https://www.patreon.com/api/oauth2/v2/identity",
+      {
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     data.access_token = res.access_token;
     data.refresh_token = res.refresh_token;
@@ -46,9 +53,6 @@ class PatreonStrategy extends OAuthStrategy {
   }
 
   async getRedirect(data) {
-    if (data.response && data.response.data.errors) {
-      console.error(data.response.data.errors);
-    }
     return `${this.app.get("authentication").oauth.redirect}`;
   }
 }
@@ -59,7 +63,7 @@ class TwitchStrategy extends OAuthStrategy {
   }
 
   async getEntityData(profile) {
-    const user = profile?.data[0];
+    const user = profile && profile.data[0];
     if (!user) throw new Error("No User Found");
     return {
       twitch: {
@@ -69,8 +73,8 @@ class TwitchStrategy extends OAuthStrategy {
     };
   }
 
-  async getEntityQuery(profile) {
-    const user = profile?.data[0];
+  async getEntityQuery(profile, params) {
+    const user = profile && profile.data[0];
     if (!user) throw new Error("No User Found");
     const query = { "twitch.id": user.id };
     return {
@@ -80,10 +84,6 @@ class TwitchStrategy extends OAuthStrategy {
   }
 
   async getRedirect(authResult, params) {
-    if (data.response && data.response.data.errors) {
-      console.error(data.response.data.errors);
-      throw new Error("OAuth not Successful");
-    }
     return `${this.app.get("authentication").oauth.redirect}`;
   }
 }
@@ -106,7 +106,7 @@ module.exports = (app) => {
         }),
         secret: app.get("sessionSecret"),
         resave: false,
-        saveUninitialized: true,
+        saveUninitialized: false,
       }),
     })
   );
