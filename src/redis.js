@@ -9,14 +9,14 @@ module.exports = async function (app) {
             socket: {
               path: redisConf.unix,
             },
-            //password: redisConf.password,
+            password: redisConf.password,
             enable_offline_queue: false,
           }
         : {
             socket: {
               host: redisConf.hostname,
             },
-            //password: redisConf.password,
+            password: redisConf.password,
             enable_offline_queue: false,
           }
     );
