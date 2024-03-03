@@ -1,12 +1,7 @@
-const {
-  AuthenticationService,
-  JWTStrategy,
-} = require("@feathersjs/authentication");
+const { AuthenticationService, JWTStrategy, AuthenticationBaseStrategy } = require("@feathersjs/authentication");
 const { LocalStrategy } = require("@feathersjs/authentication-local");
 const { oauth, OAuthStrategy } = require("@feathersjs/authentication-oauth");
-const { ApiKeyStrategy } = require("@thesinding/authentication-api-key");
 const axios = require("axios");
-const redis = require("redis");
 const session = require("express-session");
 const RedisStore = require("connect-redis").default;
 
@@ -15,20 +10,17 @@ class PatreonStrategy extends OAuthStrategy {
     super(app);
   }
 
-  async getProfile(authResult) {
-    const accessToken = authResult.access_token;
+  async getProfile(res, params) {
+    const accessToken = res.access_token;
 
-    let { data } = await axios.get(
-      "https://www.patreon.com/api/oauth2/v2/identity",
-      {
-        headers: {
-          authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    let { data } = await axios.get("https://www.patreon.com/api/oauth2/v2/identity", {
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+      },
+    });
 
-    data.access_token = authResult.access_token;
-    data.refresh_token = authResult.refresh_token;
+    data.access_token = res.access_token;
+    data.refresh_token = res.refresh_token;
 
     return data;
   }
@@ -54,6 +46,9 @@ class PatreonStrategy extends OAuthStrategy {
   }
 
   async getRedirect(data) {
+    if (data.response && data.response.data.errors) {
+      console.error(data.response.data.errors);
+    }
     return `${this.app.get("authentication").oauth.redirect}`;
   }
 }
@@ -63,71 +58,52 @@ class TwitchStrategy extends OAuthStrategy {
     super(app);
   }
 
-  async getProfile(authResult) {
-    const accessToken = authResult.access_token;
-
-    let { data } = await axios
-      .get("https://api.twitch.tv/helix/users", {
-        headers: {
-          authorization: `Bearer ${accessToken}`,
-          "Client-ID": this.app.get("authentication").oauth.twitch.key,
-        },
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-    data = data.data[0];
-
-    data.access_token = authResult.access_token;
-    data.refresh_token = authResult.refresh_token;
-
-    return data;
-  }
-
   async getEntityData(profile) {
+    const user = profile?.data[0];
+    if (!user) throw new Error("No User Found");
     return {
       twitch: {
-        id: profile.id,
-        channel: profile.login,
-        access_token: profile.access_token,
-        refresh_token: profile.refresh_token,
+        id: user.id,
+        channel: user.login,
       },
     };
   }
 
-  getEntityQuery(profile) {
-    const query = { "twitch.id": profile.id };
+  async getEntityQuery(profile) {
+    const user = profile?.data[0];
+    if (!user) throw new Error("No User Found");
+    const query = { "twitch.id": user.id };
     return {
       ...query,
       $limit: 1,
     };
   }
 
-  async getRedirect(data) {
+  async getRedirect(authResult, params) {
+    if (data.response && data.response.data.errors) {
+      console.error(data.response.data.errors);
+      throw new Error("OAuth not Successful");
+    }
     return `${this.app.get("authentication").oauth.redirect}`;
   }
 }
 
 module.exports = (app) => {
-  const redisConf = app.get("authentication").session.redis;
-  const redisClient = redis.createClient(
-    redisConf.useUnixSocket
-      ? { path: redisConf.unix, password: redisConf.password }
-      : { host: redisConf.hostname, password: redisConf.password }
-  );
   const authentication = new AuthenticationService(app);
 
   authentication.register("jwt", new JWTStrategy());
   authentication.register("local", new LocalStrategy());
   authentication.register("patreon", new PatreonStrategy(app));
   authentication.register("twitch", new TwitchStrategy(app));
-  authentication.register("api-key", new ApiKeyStrategy());
+  authentication.register("apiKey", new ApiKeyStrategy());
 
   app.use("/authentication", authentication);
   app.configure(
     oauth({
       expressSession: session({
-        store: new RedisStore({ client: redisClient }),
+        store: new RedisStore({
+          client: app.get("redisClient"),
+        }),
         secret: app.get("sessionSecret"),
         resave: false,
         saveUninitialized: true,
@@ -135,3 +111,18 @@ module.exports = (app) => {
     })
   );
 };
+
+class ApiKeyStrategy extends AuthenticationBaseStrategy {
+  async authenticate(authentication) {
+    const { token } = authentication;
+
+    const config = this.authentication.configuration[this.name];
+
+    const match = config.allowedKeys.includes(token);
+    if (!match) throw new NotAuthenticated("Incorrect API Key");
+
+    return {
+      apiKey: true,
+    };
+  }
+}

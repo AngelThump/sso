@@ -2,7 +2,7 @@ const { createClient } = require("redis");
 const { RateLimiterRedis } = require("rate-limiter-flexible");
 
 module.exports = async function (app) {
-  const redisConf = app.get("authentication").session.redis,
+  const redisConf = app.get("authentication").redis,
     redisClient = createClient(
       redisConf.useUnixSocket
         ? {

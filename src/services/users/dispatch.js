@@ -3,7 +3,7 @@ module.exports = function () {
   // eslint-disable-line no-unused-vars
   return async (context) => {
     if (!context.params.authentication) return context;
-    if (context.params.authentication.strategy === "api-key") {
+    if (context.params.authentication.strategy === "apiKey") {
       return context;
     }
     if (context.method === "find") {

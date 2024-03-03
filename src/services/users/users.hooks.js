@@ -10,13 +10,15 @@ const uuid = require("./uuid");
 const insensitive = require("./insensitive");
 const isEmailChange = () => (context) => typeof context.data.email !== "undefined";
 const params = () => (context) => typeof context.params.user !== "undefined";
+const allowApiKey = require("./allow-apikey");
 
 module.exports = {
   before: {
     all: [iff(isProvider("external"), discardQuery("password", "title", "stream_password", "patreon", "twitch"))],
-    find: [authenticate("api-key"), insensitive()],
+    find: [allowApiKey(), authenticate("apiKey"), insensitive()],
     get: [
-      authenticate("jwt", "api-key"),
+      allowApiKey(),
+      authenticate("jwt", "apiKey"),
       iff(
         params(),
         setField({
@@ -27,7 +29,7 @@ module.exports = {
     ],
     create: [disallow("external"), uuid.create(), hashPassword("password"), streamkey.create(), verifyHooks.addVerification()],
     update: [disallow()],
-    patch: [authenticate("api-key"), iff(isEmailChange(), verifyHooks.addVerification())],
+    patch: [allowApiKey(), authenticate("apiKey"), iff(isEmailChange(), verifyHooks.addVerification())],
     remove: [disallow()],
   },
 
