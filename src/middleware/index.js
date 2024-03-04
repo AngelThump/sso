@@ -6,12 +6,23 @@ const validation = require("./validation");
 const user = require("./user");
 const patreon = require("./patreon");
 const { limiter } = require("./rateLimit");
+const session = require("express-session");
+const RedisStore = require("connect-redis").default;
 
 module.exports = function (app) {
+  app.use(
+    session({
+      store: new RedisStore({ 
+        client: app.get("redisClient"),
+        prefix: "sso:"
+      }),
+      secret: app.get("authentication").secret,
+      ...app.get("authentication").session,
+    })
+  );
+
   app.post("/v1/sns", sns(app));
-
   app.get("/user/reset/password/:hash", (req, res, next) => res.render("reset_password.ejs", { hash: req.params.hash }));
-
   app.get("/user/verify/:hash", limiter(app), user.verify(app));
   app.post("/v1/user/reset-password", limiter(app), user.resetPassword(app));
   app.post("/v1/user/password", limiter(app), [recaptcha.verify(app), user.sendResetPassword(app)]);

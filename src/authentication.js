@@ -96,10 +96,12 @@ module.exports = (app) => {
       expressSession: session({
         store: new RedisStore({
           client: app.get("redisClient"),
+          prefix: "oauth:",
         }),
         secret: app.get("sessionSecret"),
         resave: false,
         saveUninitialized: true,
+        name: "oauth.sid",
       }),
     })
   );
