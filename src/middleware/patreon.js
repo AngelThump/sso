@@ -49,17 +49,22 @@ module.exports.verifyPatreon = function (app) {
 
     const membership_id = await getMembershipId(user.patreon.access_token);
 
-    if (!membership_id)
+    if (!membership_id) {
+      console.error(`Missing membership id for user ${user.id} ${user.username} `)
       return res
         .status(404)
         .json({ error: true, message: "You are not a patron" });
+    }
+      
 
     const patronData = await getPatronData(membership_id);
 
-    if (!patronData)
+    if (!patronData) {
+      console.error(`Missing patron data for user ${user.id} ${user.username} `)
       return res
         .status(404)
         .json({ error: true, message: "You are not a patron" });
+    }
 
     if (!patronData.data.relationships.currently_entitled_tiers)
       return res.status(404).json({ error: true, message: "No patron tier." });
@@ -207,7 +212,7 @@ const getMembershipId = async (access_token) => {
       if (!response.data.included) return;
       if (typeof response.data.included[Symbol.iterator] !== "function") return;
       for (const included of response.data.included) {
-        if (!included.relationships) break;
+        if (!included.relationships) continue;
         if (patreon.campaignID === included.relationships.campaign.data.id) {
           membership_id = included.id;
           break;
